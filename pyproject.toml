@@ -1,0 +1,26 @@
+[project]
+name = "fastapi-best-practices-starter"
+version = "0.1.0"
+description = "A production-grade FastAPI project template with Domain-Driven Design."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi",
+    "sqlmodel",
+    "fastapi-users[sqlalchemy]",
+    "alembic",
+    "pydantic-settings",
+    "uvicorn[standard]",
+    "gunicorn",
+    "asyncpg",
+    "passlib[bcrypt]",
+    "slowapi",
+    "loguru",
+    "itsdangerous",
+    "pyjwt",
+    "email-validator",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
