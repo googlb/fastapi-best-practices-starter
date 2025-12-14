@@ -18,8 +18,7 @@ async def get_dicts(
     session: AsyncSession = Depends(get_db)
 ):
     """获取字典列表"""
-    skip = (page - 1) * size
-    dicts, total = await crud_dict.get_page(session, skip=skip, limit=size)
+    dicts, total = await crud_dict.get_page(session, page=page, page_size=size)
     return PageResult.success([dict_item.model_dump() for dict_item in dicts], total, page, size)
 
 
@@ -32,7 +31,7 @@ async def get_dict(
     dict_item = await crud_dict.get(session, dict_id)
     if not dict_item:
         return Result.error(404, "Dict not found")
-    return Result.success(dict_item.model_dump())
+    return Result.success(dict_item)
 
 
 @router.get("/code/{dict_code}")
@@ -49,7 +48,7 @@ async def get_dict_by_code(
     dict_data_list = await crud_dict_data.get_by_dict_id(session, dict_item.id)
     
     result = dict_item.model_dump()
-    result["data"] = [data.model_dump() for data in dict_data_list]
+    result["data"] = dict_data_list
     return Result.success(result)
 
 
@@ -65,9 +64,7 @@ async def get_dict_data(
     if not dict_item:
         return Result.error(404, "Dict not found")
     
-    skip = (page - 1) * size
-    dict_data_list = await crud_dict_data.get_by_dict_id(session, dict_id, skip=skip, limit=size)
-    total = await crud_dict_data.count_by_dict_id(session, dict_id)
+    dict_data_list, total = await crud_dict_data.get_page(session, dict_id=dict_id, page=page, page_size=size)
     return PageResult.success([data.model_dump() for data in dict_data_list], total, page, size)
 
 
@@ -78,7 +75,7 @@ async def create_dict(
 ):
     """创建字典"""
     dict_item = await crud_dict.create(session, dict_data)
-    return Result.success(dict_item.model_dump())
+    return Result.success(dict_item)
 
 
 @router.put("/{dict_id}")
@@ -93,7 +90,7 @@ async def update_dict(
         return Result.error(404, "Dict not found")
     
     dict_item = await crud_dict.update(session, dict_item, dict_data)
-    return Result.success(dict_item.model_dump())
+    return Result.success(dict_item)
 
 
 @router.delete("/{dict_id}")
@@ -123,7 +120,7 @@ async def create_dict_data(
     
     data_item["dict_id"] = dict_id
     dict_data = await crud_dict_data.create(session, data_item)
-    return Result.success(dict_data.model_dump())
+    return Result.success(dict_data)
 
 
 @router.put("/data/{data_id}")
@@ -138,7 +135,7 @@ async def update_dict_data(
         return Result.error(404, "Dict data not found")
     
     dict_data = await crud_dict_data.update(session, dict_data, data_item)
-    return Result.success(dict_data.model_dump())
+    return Result.success(dict_data)
 
 
 @router.delete("/data/{data_id}")

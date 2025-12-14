@@ -18,8 +18,7 @@ async def get_menus(
     session: AsyncSession = Depends(get_db)
 ):
     """获取菜单列表"""
-    skip = (page - 1) * size
-    menus, total = await crud_menu.get_page(session, skip=skip, limit=size)
+    menus, total = await crud_menu.get_page(session, page=page, page_size=size)
     return PageResult.success([menu.model_dump() for menu in menus], total, page, size)
 
 
@@ -30,7 +29,7 @@ async def get_menu_tree(
 ):
     """获取菜单树形结构"""
     menus = await crud_menu.get_tree(session, parent_id=parent_id)
-    return Result.success([menu.model_dump() for menu in menus])
+    return Result.success(menus)
 
 
 @router.get("/{menu_id}")
@@ -42,7 +41,7 @@ async def get_menu(
     menu = await crud_menu.get(session, menu_id)
     if not menu:
         return Result.error(404, "菜单不存在")
-    return Result.success(menu.model_dump())
+    return Result.success(menu)
 
 
 @router.get("/{menu_id}/roles")
@@ -56,7 +55,7 @@ async def get_menu_roles(
         return Result.error(404, "菜单不存在")
     
     roles = await crud_role_menu.get_menu_roles(session, menu_id)
-    return Result.success([role.model_dump() for role in roles])
+    return Result.success(roles)
 
 
 @router.post("/")
@@ -66,7 +65,7 @@ async def create_menu(
 ):
     """创建菜单"""
     menu = await crud_menu.create(session, menu_data)
-    return Result.success(menu.model_dump())
+    return Result.success(menu)
 
 
 @router.put("/{menu_id}")
@@ -81,7 +80,7 @@ async def update_menu(
         return Result.error(404, "菜单不存在")
     
     menu = await crud_menu.update(session, menu, menu_data)
-    return Result.success(menu.model_dump())
+    return Result.success(menu)
 
 
 @router.delete("/{menu_id}")

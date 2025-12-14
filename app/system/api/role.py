@@ -23,8 +23,7 @@ async def get_roles(
     current_user: SysUser = Depends(get_current_active_user)
 ):
     """获取角色列表"""
-    skip = (page - 1) * size
-    roles, total = await crud_role.get_page(session, skip=skip, limit=size)
+    roles, total = await crud_role.get_page(session, page=page, page_size=size)
     return PageResult.success(roles, total, page, size)
 
 
@@ -113,7 +112,7 @@ async def remove_menu_from_role(
         return Result.error(404, "角色不存在")
     
     # 移除菜单
-    success = await crud_role_menu.remove_menu_from_role(session, role_id, menu_id)
+    success = await crud_role_menu.delete_menu_from_role(session, role_id, menu_id)
     if not success:
         return Result.error(500, "移除菜单失败")
     

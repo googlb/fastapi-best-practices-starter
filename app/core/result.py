@@ -1,48 +1,43 @@
-from typing import Generic, TypeVar, Optional, Any
-from pydantic import BaseModel
+from typing import Generic, TypeVar, Optional, List, Any
+from pydantic import BaseModel, Field, ConfigDict
 
 T = TypeVar('T')
 
+# 1. 定义纯粹的分页数据结构 (对应 Java 的 PageInfo 或 PageResult)
+# 它不包含 code 和 msg，只包含分页核心数据
+class PageInfo(BaseModel, Generic[T]):
+    items: List[T] = Field(description="数据列表")
+    total: int = Field(description="总条数")
+    page: int = Field(default=1, description="当前页")
+    size: int = Field(default=10, description="页大小")
+    pages: int = Field(description="总页数")
 
+# 2. 定义统一响应外壳 (对应 Java 的 Result<T>)
 class Result(BaseModel, Generic[T]):
-    """统一响应结构"""
-    code: int = 0
-    msg: str = "success"
-    data: Optional[T] = None
+    code: int = Field(default=0, description="业务状态码")
+    msg: str = Field(default="success", description="提示信息")
+    data: Optional[T] = Field(default=None, description="数据主体")
+
+    model_config = ConfigDict(populate_by_name=True)
 
     @classmethod
     def success(cls, data: Optional[T] = None) -> "Result[T]":
-        """成功响应"""
         return cls(code=0, msg="success", data=data)
 
     @classmethod
-    def error(cls, code: int = 500, msg: str = "Internal Server Error") -> "Result[Any]":
-        """错误响应"""
-        return cls(code=code, msg=msg, data=None)
-
-    @classmethod
-    def error_with_data(cls, code: int = 500, msg: str = "Internal Server Error", data: Optional[Any] = None) -> "Result[Any]":
-        """带数据的错误响应"""
+    def error(cls, code: int = 500, msg: str = "Error", data: Any = None) -> "Result[T]":
         return cls(code=code, msg=msg, data=data)
 
-
-class PageResult(BaseModel, Generic[T]):
-    """分页响应结构"""
-    code: int = 0
-    msg: str = "success"
-    data: Optional[dict] = None
-
+    # 3. 专门为分页提供一个快捷构造方法
+    # 返回类型注解明确为 Result[PageInfo[T]]
     @classmethod
-    def success(cls, items: list, total: int, page: int = 1, size: int = 10) -> "PageResult[T]":
-        """成功分页响应"""
-        return cls(
-            code=0,
-            msg="success",
-            data={
-                "items": items,
-                "total": total,
-                "page": page,
-                "size": size,
-                "pages": (total + size - 1) // size
-            }
+    def success_page(cls, items: List[T], total: int, page: int = 1, size: int = 10) -> "Result[PageInfo[T]]":
+        pages = (total + size - 1) // size if size > 0 else 0
+        page_info = PageInfo[T](
+            items=items,
+            total=total,
+            page=page,
+            size=size,
+            pages=pages
         )
+        return cls(code=0, msg="success", data=page_info)

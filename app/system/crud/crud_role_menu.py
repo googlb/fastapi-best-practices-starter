@@ -78,7 +78,7 @@ class CRUDRoleMenu:
             await session.rollback()
             return False
     
-    async def remove_menu_from_role(
+    async def delete_menu_from_role(
         self, 
         session: AsyncSession, 
         role_id: UUID, 
