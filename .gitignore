@@ -27,8 +27,6 @@ wheels/
 MANIFEST
 
 # PyInstaller
-#  Usually these files are written by a pyinstaller script; this is just a
-#  health warning.
 *.manifest
 *.spec
 
@@ -89,6 +87,8 @@ celerybeat.pid
 
 # Environments
 .env
+.env.local
+.env.*.local
 .venv
 env/
 venv/
@@ -102,6 +102,8 @@ venv.bak
 *.swp
 *.swo
 *.swn
+*.sublime-project
+*.sublime-workspace
 
 # OS-specific
 .DS_Store
@@ -109,7 +111,27 @@ Thumbs.db
 
 # mypy
 .mypy_cache/
+.dmypy.json
+dmypy.json
 
-# Gemini specific
+# Pyre type checker
+.pyre/
+
+# FastAPI / Uvicorn
+*.pid
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Alembic
+alembic/versions/__pycache__/
+
+# Project-specific
 doc/
 GEMINI.md
+.geminiignore
+.qodo/
+.python-version
+uv.lock

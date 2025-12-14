@@ -104,6 +104,9 @@ testpaths = ["tests"]
 asyncio_mode = "auto"       # 自动识别 async 测试函数
 asyncio_default_fixture_loop_scope = "function" # 消除 pytest-asyncio 新版警告
 
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
 # --- Coverage ---
 [tool.coverage.run]
 source = ["app"]
