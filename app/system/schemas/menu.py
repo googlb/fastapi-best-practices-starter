@@ -14,7 +14,6 @@ class MenuBase(BaseModel):
     menu_type: int = 1
     is_visible: bool = True
     is_keep_alive: bool = True
-    is_affix: bool = False
     status: int = 1
 
 
@@ -33,7 +32,6 @@ class MenuUpdate(BaseModel):
     menu_type: Optional[int] = None
     is_visible: Optional[bool] = None
     is_keep_alive: Optional[bool] = None
-    is_affix: Optional[bool] = None
     status: Optional[int] = None
 
 
