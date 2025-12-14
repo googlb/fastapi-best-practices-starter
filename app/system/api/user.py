@@ -16,7 +16,7 @@ from app.system.crud.crud_user import crud_sys_user
 from app.system.services.user_service import sys_user_service
 from app.core.security import create_access_token, create_refresh_token
 from app.system.models import SysUser
-from app.core.result import Result
+from app.core.resp import Result
 
 router = APIRouter(prefix="/users", tags=["系统-用户"])
 

@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 T = TypeVar('T')
 
-# 1. 定义纯粹的分页数据结构 (对应 Java 的 PageInfo 或 PageResult)
+# 1. 定义纯粹的分页数据结构
 # 它不包含 code 和 msg，只包含分页核心数据
 class PageInfo(BaseModel, Generic[T]):
     items: List[T] = Field(description="数据列表")
@@ -12,7 +12,7 @@ class PageInfo(BaseModel, Generic[T]):
     size: int = Field(default=10, description="页大小")
     pages: int = Field(description="总页数")
 
-# 2. 定义统一响应外壳 (对应 Java 的 Result<T>)
+# 2. 定义统一响应外壳
 class Result(BaseModel, Generic[T]):
     code: int = Field(default=0, description="业务状态码")
     msg: str = Field(default="success", description="提示信息")

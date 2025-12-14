@@ -5,7 +5,7 @@ from typing import Optional
 
 from app.system.crud.crud_user import crud_sys_user
 from app.system.schemas.user import SysUserCreate, SysUserUpdate
-from app.core.result import Result
+from app.core.resp import Result
 
 
 class SysUserService:

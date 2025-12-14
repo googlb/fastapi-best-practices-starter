@@ -10,7 +10,7 @@ from app.system.models import SysRole, SysMenu, SysUser
 from app.system.schemas.role import Role, RoleCreate, RoleUpdate
 from app.system.schemas.menu import Menu
 from app.dependencies.auth import get_current_active_user
-from app.core.result import Result, PageResult
+from app.core.resp import Result
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ async def get_roles(
 ):
     """获取角色列表"""
     roles, total = await crud_role.get_page(session, page=page, page_size=size)
-    return PageResult.success(roles, total, page, size)
+    return Result.success_page(roles, total, page, size)
 
 
 @router.get("/{role_id}")

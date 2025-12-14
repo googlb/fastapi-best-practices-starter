@@ -6,7 +6,7 @@ from app.dependencies.database import get_session as get_db
 from app.system.models import SysMenu, SysRole
 from app.system.crud.crud_menu import crud_menu
 from app.system.crud.crud_role_menu import crud_role_menu
-from app.core.result import Result, PageResult
+from app.core.resp import Result
 
 router = APIRouter()
 
@@ -19,7 +19,7 @@ async def get_menus(
 ):
     """获取菜单列表"""
     menus, total = await crud_menu.get_page(session, page=page, page_size=size)
-    return PageResult.success([menu.model_dump() for menu in menus], total, page, size)
+    return Result.success_page(menus, total, page, size)
 
 
 @router.get("/tree")
