@@ -1,13 +1,17 @@
 from sqlmodel import SQLModel
 
 # Import all SQLModel models here to ensure Alembic can discover them
-# 按依赖顺序导入: Level 0 (无外键依赖) -> Level 1 (依赖 Level 0) -> Level 2 (依赖 Level 1)
-
-# Level 0 (无外键依赖)
-from app.system.models import Role, Menu, Dict, DictData
-
-# Level 1 (依赖 Level 0)
-from app.system.models import SysUser
+# 只要导入了，它们就会自动注册到 SQLModel.metadata 中。
+# --- System 模块 ---
+from app.system.models import (
+    SysUser,
+    SysRole,
+    SysMenu,
+    SysDict,
+    SysDictData,
+    SysUserRole,
+    SysRoleMenu
+)
 
 
 # You might not need to do anything else here.
