@@ -120,8 +120,9 @@ async def delete_user(
     if not current_user.is_superuser:
         return Result.error(403, "权限不足")
     
-    user = await crud_sys_user.delete(session, user_id)
+    user = await crud_sys_user.get(session, user_id)
     if not user:
         return Result.error(404, "用户不存在")
     
+    await crud_sys_user.delete(session, user_id)
     return Result.success({"message": "用户删除成功"})

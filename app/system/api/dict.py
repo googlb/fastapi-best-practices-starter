@@ -13,14 +13,14 @@ router = APIRouter()
 
 @router.get("/")
 async def get_dicts(
-    skip: int = 0,
-    limit: int = 100,
+    page: int = 1,
+    size: int = 20,
     session: AsyncSession = Depends(get_db)
 ):
     """获取字典列表"""
-    dicts = await crud_dict.get_multi(session, skip=skip, limit=limit)
-    total = await crud_dict.count(session)
-    return PageResult.success([dict_item.model_dump() for dict_item in dicts], total, skip//limit + 1, limit)
+    skip = (page - 1) * size
+    dicts, total = await crud_dict.get_page(session, skip=skip, limit=size)
+    return PageResult.success([dict_item.model_dump() for dict_item in dicts], total, page, size)
 
 
 @router.get("/{dict_id}")
@@ -56,8 +56,8 @@ async def get_dict_by_code(
 @router.get("/{dict_id}/data")
 async def get_dict_data(
     dict_id: UUID,
-    skip: int = 0,
-    limit: int = 100,
+    page: int = 1,
+    size: int = 20,
     session: AsyncSession = Depends(get_db)
 ):
     """获取字典数据列表"""
@@ -65,9 +65,10 @@ async def get_dict_data(
     if not dict_item:
         return Result.error(404, "Dict not found")
     
-    dict_data_list = await crud_dict_data.get_by_dict_id(session, dict_id, skip=skip, limit=limit)
+    skip = (page - 1) * size
+    dict_data_list = await crud_dict_data.get_by_dict_id(session, dict_id, skip=skip, limit=size)
     total = await crud_dict_data.count_by_dict_id(session, dict_id)
-    return PageResult.success([data.model_dump() for data in dict_data_list], total, skip//limit + 1, limit)
+    return PageResult.success([data.model_dump() for data in dict_data_list], total, page, size)
 
 
 @router.post("/")

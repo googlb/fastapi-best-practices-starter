@@ -1,5 +1,4 @@
 from typing import Optional, List
-from uuid import UUID
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.system.models import SysDict

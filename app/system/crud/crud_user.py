@@ -23,15 +23,13 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
 
     async def create(self, session: AsyncSession, *, obj_in: SysUserCreate) -> SysUser:
         """创建用户"""
-        db_obj = SysUser(
-            username=obj_in.username,
-            email=obj_in.email,
-            hashed_password=hash_password(obj_in.password),
-            is_active=obj_in.is_active,
-            is_superuser=obj_in.is_superuser,
-            remark=obj_in.remark,
-            role_id=obj_in.role_id,
-        )
+        # 转换为字典并处理密码
+        obj_in_data = obj_in.model_dump()
+        obj_in_data["hashed_password"] = hash_password(obj_in_data.pop("password"))
+        
+        # 使用基类的model_validate方法创建对象
+        db_obj = self.model.model_validate(obj_in_data)
+        
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)
@@ -45,18 +43,15 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
         obj_in: SysUserUpdate
     ) -> SysUser:
         """更新用户"""
+        # 获取更新数据
         update_data = obj_in.model_dump(exclude_unset=True)
-
+        
+        # 处理密码
         if "password" in update_data:
             update_data["hashed_password"] = hash_password(update_data.pop("password"))
-
-        for field, value in update_data.items():
-            setattr(db_obj, field, value)
-
-        session.add(db_obj)
-        await session.commit()
-        await session.refresh(db_obj)
-        return db_obj
+        
+        # 使用基类的update方法
+        return await super().update(session, db_obj=db_obj, obj_in=update_data)
 
     async def authenticate(
         self, session: AsyncSession, username: str, password: str

@@ -13,14 +13,14 @@ router = APIRouter()
 
 @router.get("/")
 async def get_menus(
-    skip: int = 0,
-    limit: int = 100,
+    page: int = 1,
+    size: int = 20,
     session: AsyncSession = Depends(get_db)
 ):
     """获取菜单列表"""
-    menus = await crud_menu.get_multi(session, skip=skip, limit=limit)
-    total = await crud_menu.count(session)
-    return PageResult.success([menu.model_dump() for menu in menus], total, skip//limit + 1, limit)
+    skip = (page - 1) * size
+    menus, total = await crud_menu.get_page(session, skip=skip, limit=size)
+    return PageResult.success([menu.model_dump() for menu in menus], total, page, size)
 
 
 @router.get("/tree")

@@ -17,15 +17,15 @@ router = APIRouter()
 
 @router.get("/")
 async def get_roles(
-    skip: int = 0,
-    limit: int = 100,
+    page: int = 1,
+    size: int = 20,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
 ):
     """获取角色列表"""
-    roles = await crud_role.get_multi(session, skip=skip, limit=limit)
-    total = await crud_role.count(session)
-    return PageResult.success(roles, total, skip//limit + 1, limit)
+    skip = (page - 1) * size
+    roles, total = await crud_role.get_page(session, skip=skip, limit=size)
+    return PageResult.success(roles, total, page, size)
 
 
 @router.get("/{role_id}")
