@@ -3,24 +3,113 @@ name = "fastapi-best-practices-starter"
 version = "0.1.0"
 description = "A production-grade FastAPI project template with Domain-Driven Design."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Your Name", email = "your@email.com" }
+]
+
+# 生产环境依赖
 dependencies = [
-    "fastapi",
-    "sqlmodel",
-    "fastapi-users[sqlalchemy]",
-    "alembic",
-    "pydantic-settings",
-    "uvicorn[standard]",
-    "gunicorn",
-    "asyncpg",
-    "passlib[bcrypt]",
-    "slowapi",
-    "loguru",
-    "itsdangerous",
-    "pyjwt",
-    "email-validator",
+    "fastapi[standard]",          # 包含 uvicorn[standard], email-validator, httpx 等
+    "sqlmodel",                   # ORM
+    "asyncpg",                    # PostgreSQL 异步驱动
+    "alembic",                    # 数据库迁移
+    "fastapi-users[sqlalchemy]",  # 用户认证体系
+    "pydantic-settings",          # 配置管理
+    "passlib[bcrypt]",            # 密码哈希
+    "pyjwt",                      # JWT 处理
+    "slowapi",                    # 限流
+    "loguru",                     # 日志
+    "scalar-fastapi",          # 现代接口文档 UI
+    "gunicorn",                   # 生产环境 WSGI/ASGI 管理器
 ]
 
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# ========================================================
+# 开发依赖分组 (uv 标准写法)
+# 使用 `uv sync --dev` 或 `uv run pytest` 时会自动安装
+# ========================================================
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "httpx",            # 用于测试 API 请求
+    "mypy",
+    "ruff",
+    "pre-commit",       # git commit 钩子
+]
+
+# ========================================================
+# 工具配置
+# ========================================================
+
+[tool.uv]
+package = false  # 标记为可打包项目（如果是纯应用而非库，设为 false 也可以，但 true 更通用）
+
+# --- Ruff (Linter & Formatter) ---
+[tool.ruff]
+target-version = "py312"
+line-length = 88            # 保持与 Black 一致
+exclude = ["alembic"]       # 忽略迁移文件夹
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # Pyflakes
+    "I",        # isort (自动排序 import)
+    "B",        # flake8-bugbear (发现潜在 bug)
+    "C4",       # flake8-comprehensions (列表推导式优化)
+    "UP",       # pyupgrade (自动升级旧语法，如 Type -> list)
+    "ARG001",   # 未使用的参数
+    "T201",     # print 语句检测 (生产环境禁止 print)
+    "PT",       # flake8-pytest-style (规范测试代码)
+    "SIM",      # flake8-simplify (代码简化)
+]
+ignore = [
+    "E501",     # 忽略行过长 (由 formatter 自动处理，且有时无法避免)
+    "B008",     # 允许在函数参数中调用 (FastAPI Depends 需要)
+]
+fixable = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# --- Mypy (Type Checking) ---
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+exclude = ["venv", ".venv", "alembic"]
+# Pydantic 插件是必须的，否则 SQLModel/Pydantic 会报很多错
+plugins = [
+  "pydantic.mypy"
+]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+# --- Pytest ---
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --cov=app --cov-report=term-missing"
+testpaths = ["tests"]
+asyncio_mode = "auto"       # 自动识别 async 测试函数
+asyncio_default_fixture_loop_scope = "function" # 消除 pytest-asyncio 新版警告
+
+# --- Coverage ---
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/db/base.py", "app/main.py"] # 忽略配置类文件
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 80             # 如果覆盖率低于 80% 报错
