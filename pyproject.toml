@@ -11,18 +11,19 @@ authors = [
 
 # 生产环境依赖
 dependencies = [
-    "fastapi[standard]",          # 包含 uvicorn[standard], email-validator, httpx 等
-    "sqlmodel",                   # ORM
-    "asyncpg",                    # PostgreSQL 异步驱动
-    "alembic",                    # 数据库迁移
-    "fastapi-users[sqlalchemy]",  # 用户认证体系
-    "pydantic-settings",          # 配置管理
-    "passlib[bcrypt]",            # 密码哈希
-    "pyjwt",                      # JWT 处理
-    "slowapi",                    # 限流
-    "loguru",                     # 日志
-    "scalar-fastapi",          # 现代接口文档 UI
-    "gunicorn",                   # 生产环境 WSGI/ASGI 管理器
+    "fastapi[standard]", # 包含 uvicorn[standard], email-validator, httpx 等
+    "sqlmodel", # ORM
+    "asyncpg", # PostgreSQL 异步驱动
+    "alembic", # 数据库迁移
+    "fastapi-users[sqlalchemy]", # 用户认证体系
+    "pydantic-settings", # 配置管理
+    "passlib[bcrypt]", # 密码哈希
+    "pyjwt", # JWT 处理
+    "slowapi", # 限流
+    "loguru", # 日志
+    "scalar-fastapi", # 现代接口文档 UI
+    "gunicorn", # 生产环境 WSGI/ASGI 管理器
+    "python-jose[cryptography]>=3.5.0",
 ]
 
 [build-system]

@@ -11,7 +11,7 @@ This project is a production-grade starter template for building FastAPI applica
 ## Project Architecture
 
 ```
-grok-fastapi-project/
+fastapi-best-practices-starter/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                  # Entrypoint: Initializes app, mounts the main API router

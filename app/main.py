@@ -51,24 +51,7 @@ async def openapi_app():
 async def scalar_html():
     return get_scalar_api_reference(
         title="API Documentation Hub",
-
-        # 【核心配置】多源下拉菜单
-        sources=[
-            {
-                "title": "🛡️ System Management",
-                "url": "/openapi/sys.json",
-                "default": True
-            },
-            {
-                "title": "📱 Client Application",
-                "url": "/openapi/app.json"
-            },
-            {
-                "title": "👁️ All Endpoints (Debug)",
-                "url": "/openapi.json"
-            }
-        ],
-
+        openapi_url="/openapi.json",
         # UI 风格配置
         theme=Theme.DEFAULT,      # 推荐 purple 或 deepSpace
         layout=Layout.MODERN,     # modern 布局更适合多源文档
