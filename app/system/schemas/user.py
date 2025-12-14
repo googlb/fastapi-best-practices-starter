@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, UUID4
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
 
@@ -13,7 +13,7 @@ class SysUserBase(BaseModel):
 
 class SysUserCreate(SysUserBase):
     password: str
-    role_id: Optional[UUID4] = None
+    role_ids: Optional[list[int]] = None
 
 
 class SysUserUpdate(BaseModel):
@@ -22,16 +22,16 @@ class SysUserUpdate(BaseModel):
     is_active: Optional[bool] = None
     is_superuser: Optional[bool] = None
     remark: Optional[str] = None
-    role_id: Optional[UUID4] = None
+    role_ids: Optional[list[int]] = None
     password: Optional[str] = None
 
 
 class SysUserResponse(SysUserBase):
-    id: UUID4
+    id: int
     last_login_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
-    role_id: Optional[UUID4] = None
+    role_ids: Optional[list[int]] = None
     
     class Config:
         from_attributes = True

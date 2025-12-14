@@ -1,4 +1,3 @@
-from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.dependencies.database import get_session as get_db
@@ -22,7 +21,7 @@ async def get_dicts(
 
 @router.get("/{dict_id}")
 async def get_dict(
-    dict_id: UUID,
+    dict_id: int,
     session: AsyncSession = Depends(get_db)
 ):
     """获取字典详情"""
@@ -60,7 +59,7 @@ async def get_dict_by_code(
 
 @router.get("/{dict_id}/data")
 async def get_dict_data(
-    dict_id: UUID,
+    dict_id: int,
     page: int = 1,
     size: int = 20,
     session: AsyncSession = Depends(get_db)
@@ -86,7 +85,7 @@ async def create_dict(
 
 @router.put("/{dict_id}")
 async def update_dict(
-    dict_id: UUID,
+    dict_id: int,
     dict_data: dict,
     session: AsyncSession = Depends(get_db)
 ):
@@ -101,7 +100,7 @@ async def update_dict(
 
 @router.delete("/{dict_id}")
 async def delete_dict(
-    dict_id: UUID,
+    dict_id: int,
     session: AsyncSession = Depends(get_db)
 ):
     """删除字典"""
@@ -115,7 +114,7 @@ async def delete_dict(
 
 @router.post("/{dict_id}/data")
 async def create_dict_data(
-    dict_id: UUID,
+    dict_id: int,
     data_item: dict,
     session: AsyncSession = Depends(get_db)
 ):
@@ -131,7 +130,7 @@ async def create_dict_data(
 
 @router.put("/data/{data_id}")
 async def update_dict_data(
-    data_id: UUID,
+    data_id: int,
     data_item: dict,
     session: AsyncSession = Depends(get_db)
 ):
@@ -146,7 +145,7 @@ async def update_dict_data(
 
 @router.delete("/data/{data_id}")
 async def delete_dict_data(
-    data_id: UUID,
+    data_id: int,
     session: AsyncSession = Depends(get_db)
 ):
     """删除字典数据"""

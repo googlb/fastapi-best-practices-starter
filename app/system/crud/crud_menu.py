@@ -1,5 +1,4 @@
 from typing import Optional, List
-from uuid import UUID
 from sqlmodel import select, and_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.system.models import SysMenu
@@ -8,7 +7,7 @@ from app.db.crud_base import CRUDBase
 
 
 class CRUDMenu(CRUDBase[SysMenu, MenuCreate, MenuUpdate]):
-    async def get_tree(self, session: AsyncSession, parent_id: Optional[UUID] = None) -> List[SysMenu]:
+    async def get_tree(self, session: AsyncSession, parent_id: Optional[int] = None) -> List[SysMenu]:
         """获取菜单树形结构"""
         statement = select(SysMenu).where(SysMenu.parent_id == parent_id)
         result = await session.exec(statement)
@@ -20,7 +19,7 @@ class CRUDMenu(CRUDBase[SysMenu, MenuCreate, MenuUpdate]):
         
         return menus
     
-    async def get_children(self, session: AsyncSession, parent_id: UUID) -> List[SysMenu]:
+    async def get_children(self, session: AsyncSession, parent_id: int) -> List[SysMenu]:
         """获取子菜单"""
         statement = select(SysMenu).where(SysMenu.parent_id == parent_id)
         result = await session.exec(statement)

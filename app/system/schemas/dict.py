@@ -1,5 +1,6 @@
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 
 class DictBase(BaseModel):
@@ -21,7 +22,7 @@ class DictUpdate(BaseModel):
 
 
 class DictResponse(DictBase):
-    id: UUID4
+    id: int
     created_at: datetime
     updated_at: datetime
     
@@ -30,7 +31,7 @@ class DictResponse(DictBase):
 
 
 class DictDataBase(BaseModel):
-    dict_id: UUID4
+    dict_id: int
     label: str
     value: str
     sort: int = 0
@@ -43,7 +44,7 @@ class DictDataCreate(DictDataBase):
 
 
 class DictDataUpdate(BaseModel):
-    dict_id: Optional[UUID4] = None
+    dict_id: Optional[int] = None
     label: Optional[str] = None
     value: Optional[str] = None
     sort: Optional[int] = None
@@ -52,7 +53,7 @@ class DictDataUpdate(BaseModel):
 
 
 class DictDataResponse(DictDataBase):
-    id: UUID4
+    id: int
     created_at: datetime
     updated_at: datetime
     

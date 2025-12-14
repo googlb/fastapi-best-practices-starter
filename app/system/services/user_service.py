@@ -1,5 +1,4 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
-from uuid import UUID
 from datetime import datetime
 from typing import Optional
 
@@ -28,7 +27,7 @@ class SysUserService:
     async def update_user(
         self, 
         session: AsyncSession, 
-        user_id: UUID, 
+        user_id: int, 
         obj_in: SysUserUpdate
     ):
         """更新用户"""
@@ -55,7 +54,7 @@ class SysUserService:
     async def update_last_login(
         self, 
         session: AsyncSession, 
-        user_id: UUID
+        user_id: int
     ):
         """更新最后登录时间"""
         user = await crud_sys_user.get(session, user_id)

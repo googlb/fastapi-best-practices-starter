@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from datetime import timedelta
-from uuid import UUID
 
 from app.dependencies.database import get_session
 from app.dependencies.auth import get_current_user
@@ -75,7 +74,7 @@ async def create_user(
 async def update_user(
     *,
     session: AsyncSession = Depends(get_session),
-    user_id: UUID,
+    user_id: int,
     user_in: SysUserUpdate,
     current_user: SysUser = Depends(get_current_user)
 ):
@@ -95,7 +94,7 @@ async def update_user(
 async def get_user(
     *,
     session: AsyncSession = Depends(get_session),
-    user_id: UUID,
+    user_id: int,
     current_user: SysUser = Depends(get_current_user)
 ):
     """获取用户详情"""
@@ -113,7 +112,7 @@ async def get_user(
 async def delete_user(
     *,
     session: AsyncSession = Depends(get_session),
-    user_id: UUID,
+    user_id: int,
     current_user: SysUser = Depends(get_current_user)
 ):
     """删除用户"""

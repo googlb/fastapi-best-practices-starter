@@ -1,5 +1,4 @@
 from typing import List, Optional
-from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.dependencies.database import get_session as get_db
@@ -24,7 +23,7 @@ async def get_menus(
 
 @router.get("/tree")
 async def get_menu_tree(
-    parent_id: Optional[UUID] = None,
+    parent_id: Optional[int] = None,
     session: AsyncSession = Depends(get_db)
 ):
     """获取菜单树形结构"""
@@ -34,7 +33,7 @@ async def get_menu_tree(
 
 @router.get("/{menu_id}")
 async def get_menu(
-    menu_id: UUID,
+    menu_id: int,
     session: AsyncSession = Depends(get_db)
 ):
     """获取菜单详情"""
@@ -46,7 +45,7 @@ async def get_menu(
 
 @router.get("/{menu_id}/roles")
 async def get_menu_roles(
-    menu_id: UUID,
+    menu_id: int,
     session: AsyncSession = Depends(get_db)
 ):
     """获取菜单所属角色列表"""
@@ -70,7 +69,7 @@ async def create_menu(
 
 @router.put("/{menu_id}")
 async def update_menu(
-    menu_id: UUID,
+    menu_id: int,
     menu_data: dict,
     session: AsyncSession = Depends(get_db)
 ):
@@ -85,7 +84,7 @@ async def update_menu(
 
 @router.delete("/{menu_id}")
 async def delete_menu(
-    menu_id: UUID,
+    menu_id: int,
     session: AsyncSession = Depends(get_db)
 ):
     """删除菜单"""

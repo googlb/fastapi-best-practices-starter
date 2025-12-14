@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
-from uuid import UUID
 from typing import List
 
 from app.dependencies.database import get_session
 from app.system.crud.crud_role import crud_role
 from app.system.crud.crud_role_menu import crud_role_menu
 from app.system.models import SysRole, SysMenu, SysUser
-from app.system.schemas.role import Role, RoleCreate, RoleUpdate
-from app.system.schemas.menu import Menu
+from app.system.schemas.role import RoleResponse, RoleCreate, RoleUpdate
+from app.system.schemas.menu import MenuResponse
 from app.dependencies.auth import get_current_active_user
 from app.core.resp import Result
 
@@ -29,7 +28,7 @@ async def get_roles(
 
 @router.get("/{role_id}")
 async def get_role(
-    role_id: UUID,
+    role_id: int,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
 ):
@@ -42,7 +41,7 @@ async def get_role(
 
 @router.get("/{role_id}/menus")
 async def get_role_menus(
-    role_id: UUID,
+    role_id: int,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
 ):
@@ -58,8 +57,8 @@ async def get_role_menus(
 
 @router.post("/{role_id}/menus")
 async def assign_menus_to_role(
-    role_id: UUID,
-    menu_ids: List[UUID],
+    role_id: int,
+    menu_ids: List[int],
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
 ):
@@ -79,8 +78,8 @@ async def assign_menus_to_role(
 
 @router.post("/{role_id}/menus/{menu_id}")
 async def add_menu_to_role(
-    role_id: UUID,
-    menu_id: UUID,
+    role_id: int,
+    menu_id: int,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
 ):
@@ -100,8 +99,8 @@ async def add_menu_to_role(
 
 @router.delete("/{role_id}/menus/{menu_id}")
 async def remove_menu_from_role(
-    role_id: UUID,
-    menu_id: UUID,
+    role_id: int,
+    menu_id: int,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
 ):
@@ -137,7 +136,7 @@ async def create_role(
 
 @router.put("/{role_id}")
 async def update_role(
-    role_id: UUID,
+    role_id: int,
     role_in: RoleUpdate,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
@@ -159,7 +158,7 @@ async def update_role(
 
 @router.delete("/{role_id}")
 async def delete_role(
-    role_id: UUID,
+    role_id: int,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
 ):

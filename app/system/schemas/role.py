@@ -1,5 +1,5 @@
-from pydantic import BaseModel, UUID4
-from typing import Optional
+from pydantic import BaseModel
+from typing import Optional, List
 from datetime import datetime
 
 
@@ -22,9 +22,10 @@ class RoleUpdate(BaseModel):
 
 
 class RoleResponse(RoleBase):
-    id: UUID4
+    id: int
     created_at: datetime
     updated_at: datetime
+    menu_ids: Optional[List[int]] = None
     
     class Config:
         from_attributes = True

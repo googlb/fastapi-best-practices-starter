@@ -1,5 +1,4 @@
 from typing import Optional, List
-from uuid import UUID
 from sqlmodel import select, and_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.system.models import SysRole
@@ -14,7 +13,7 @@ class CRUDRole(CRUDBase[SysRole, RoleCreate, RoleUpdate]):
         result = await session.exec(statement)
         return result.first()
     
-    async def get_with_menus(self, session: AsyncSession, id: UUID) -> Optional[SysRole]:
+    async def get_with_menus(self, session: AsyncSession, id: int) -> Optional[SysRole]:
         """获取角色及其关联的菜单"""
         role = await self.get(session, id)
         if role:

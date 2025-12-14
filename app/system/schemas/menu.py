@@ -1,4 +1,4 @@
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
 
@@ -10,7 +10,7 @@ class MenuBase(BaseModel):
     component: Optional[str] = None
     icon: Optional[str] = None
     sort: int = 0
-    parent_id: Optional[UUID4] = None
+    parent_id: Optional[int] = None
     menu_type: int = 1
     is_visible: bool = True
     is_keep_alive: bool = True
@@ -29,7 +29,7 @@ class MenuUpdate(BaseModel):
     component: Optional[str] = None
     icon: Optional[str] = None
     sort: Optional[int] = None
-    parent_id: Optional[UUID4] = None
+    parent_id: Optional[int] = None
     menu_type: Optional[int] = None
     is_visible: Optional[bool] = None
     is_keep_alive: Optional[bool] = None
@@ -38,7 +38,7 @@ class MenuUpdate(BaseModel):
 
 
 class MenuResponse(MenuBase):
-    id: UUID4
+    id: int
     created_at: datetime
     updated_at: datetime
     children: Optional[List["MenuResponse"]] = None

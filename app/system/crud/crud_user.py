@@ -1,6 +1,6 @@
-from sqlmodel import select
+from sqlmodel import select, and_
 from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import Optional
+from typing import Optional, List
 
 from app.system.models import SysUser
 from app.system.schemas.user import SysUserCreate, SysUserUpdate
@@ -13,13 +13,13 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
         """根据用户名获取用户"""
         statement = select(SysUser).where(SysUser.username == username)
         result = await session.exec(statement)
-        return result.first()
+        return result.first_or_none()
 
     async def get_by_email(self, session: AsyncSession, email: str) -> Optional[SysUser]:
         """根据邮箱获取用户"""
         statement = select(SysUser).where(SysUser.email == email)
         result = await session.exec(statement)
-        return result.first()
+        return result.first_or_none()
 
     async def create(self, session: AsyncSession, *, obj_in: SysUserCreate) -> SysUser:
         """创建用户"""
@@ -53,14 +53,20 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
         # 使用基类的update方法
         return await super().update(session, db_obj=db_obj, obj_in=update_data)
 
+    async def get_by_role_ids(self, session: AsyncSession, role_ids: List[int]) -> List[SysUser]:
+        """根据角色ID列表获取用户列表"""
+        statement = select(SysUser).where(SysUser.role_ids.contains(role_ids))
+        result = await session.exec(statement)
+        return result.all()
+
     async def authenticate(
         self, session: AsyncSession, username: str, password: str
     ) -> Optional[SysUser]:
-        """验证用户"""
+        """验证用户名和密码"""
         user = await self.get_by_username(session, username)
         if not user:
             return None
-        if not verify_password(password, user.hashed_password):
+        if not user.verify_password(password):
             return None
         return user
 

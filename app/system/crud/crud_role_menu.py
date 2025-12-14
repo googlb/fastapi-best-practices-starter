@@ -1,13 +1,12 @@
 from sqlmodel import select, delete
 from sqlmodel.ext.asyncio.session import AsyncSession
-from uuid import UUID
 from typing import List, Optional
 
 from app.system.models import SysRole, SysMenu, SysRoleMenu
 
 
 class CRUDRoleMenu:
-    async def get_role_menus(self, session: AsyncSession, role_id: UUID) -> List[SysMenu]:
+    async def get_role_menus(self, session: AsyncSession, role_id: int) -> List[SysMenu]:
         """获取角色拥有的菜单列表"""
         statement = (
             select(SysMenu)
@@ -17,7 +16,7 @@ class CRUDRoleMenu:
         result = await session.exec(statement)
         return result.all()
     
-    async def get_menu_roles(self, session: AsyncSession, menu_id: UUID) -> List[SysRole]:
+    async def get_menu_roles(self, session: AsyncSession, menu_id: int) -> List[SysRole]:
         """获取菜单所属的角色列表"""
         statement = (
             select(SysRole)
@@ -30,8 +29,8 @@ class CRUDRoleMenu:
     async def assign_menu_to_role(
         self, 
         session: AsyncSession, 
-        role_id: UUID, 
-        menu_ids: List[UUID]
+        role_id: int, 
+        menu_ids: List[int]
     ) -> bool:
         """为角色分配菜单"""
         try:
@@ -53,8 +52,8 @@ class CRUDRoleMenu:
     async def add_menu_to_role(
         self, 
         session: AsyncSession, 
-        role_id: UUID, 
-        menu_id: UUID
+        role_id: int, 
+        menu_id: int
     ) -> bool:
         """为角色添加单个菜单"""
         try:
@@ -81,8 +80,8 @@ class CRUDRoleMenu:
     async def delete_menu_from_role(
         self, 
         session: AsyncSession, 
-        role_id: UUID, 
-        menu_id: UUID
+        role_id: int, 
+        menu_id: int
     ) -> bool:
         """从角色中移除菜单"""
         try:
@@ -100,8 +99,8 @@ class CRUDRoleMenu:
     async def check_role_has_menu(
         self, 
         session: AsyncSession, 
-        role_id: UUID, 
-        menu_id: UUID
+        role_id: int, 
+        menu_id: int
     ) -> bool:
         """检查角色是否拥有指定菜单"""
         statement = select(SysRoleMenu).where(

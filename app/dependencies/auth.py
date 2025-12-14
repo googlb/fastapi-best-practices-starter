@@ -1,7 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlmodel.ext.asyncio.session import AsyncSession
-from uuid import UUID
 from app.core.security import decode_token
 from app.system.crud.crud_user import crud_sys_user
 from app.dependencies.database import get_session
@@ -31,8 +30,8 @@ async def get_current_user(
         )
     
     try:
-        user_uuid = UUID(user_id)
-        user = await crud_sys_user.get(session, user_uuid)
+        user_int_id = int(user_id)
+        user = await crud_sys_user.get(session, user_int_id)
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
