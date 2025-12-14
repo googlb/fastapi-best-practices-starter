@@ -1,18 +1,19 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlmodel.ext.asyncio.session import AsyncSession
+from uuid import UUID
 from app.core.security import decode_token
-from app.domains.user.crud import get_user_by_id
-from app.dependencies.database import get_async_session
-from app.domains.user.models import User
+from app.system.crud.crud_user import crud_sys_user
+from app.dependencies.database import get_session
+from app.system.models import SysUser
 
 security = HTTPBearer()
 
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    session: AsyncSession = Depends(get_async_session),
-) -> User:
+    session: AsyncSession = Depends(get_session),
+) -> SysUser:
     token = credentials.credentials
     payload = decode_token(token)
     
@@ -29,7 +30,15 @@ async def get_current_user(
             detail="Invalid token",
         )
     
-    user = await get_user_by_id(session, int(user_id))
+    try:
+        user_uuid = UUID(user_id)
+        user = await crud_sys_user.get(session, user_uuid)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+        )
+    
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -43,3 +52,25 @@ async def get_current_user(
         )
     
     return user
+
+
+async def get_current_active_user(
+    current_user: SysUser = Depends(get_current_user),
+) -> SysUser:
+    if not current_user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Inactive user"
+        )
+    return current_user
+
+
+async def get_current_superuser(
+    current_user: SysUser = Depends(get_current_user),
+) -> SysUser:
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The user doesn't have enough privileges"
+        )
+    return current_user

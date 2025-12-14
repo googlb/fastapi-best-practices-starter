@@ -33,12 +33,13 @@ async def init_admin():
             session=session,
             username="admin",
             email="admin@example.com",
-            password="admin123",
+            password="123456",
             is_superuser=True,
         )
         print(f"✓ Admin user created successfully")
         print(f"  Username: {admin.username}")
         print(f"  Email: {admin.email}")
+        print(f"  Default Password: 123456")
         print(f"  ID: {admin.id}")
     
     await engine.dispose()

@@ -9,6 +9,11 @@ authors = [
     { name = "Your Name", email = "your@email.com" }
 ]
 
+# 便捷启动脚本
+[project.scripts]
+start = "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+dev = "uvicorn app.main:app --reload --host 0.0.0.0 --port 8001"
+
 # 生产环境依赖
 dependencies = [
     "fastapi[standard]", # 包含 uvicorn[standard], email-validator, httpx 等

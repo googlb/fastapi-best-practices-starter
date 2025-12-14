@@ -63,7 +63,7 @@ This pattern is crucial for preventing circular dependencies while ensuring Alem
 ### 1. Prerequisites
 
 -   Docker
--   Python 3.9+
+-   Python 3.12+
 -   `uv` or `pip`
 
 ### 2. Setup
@@ -86,11 +86,97 @@ With the services running, execute these commands in a separate terminal:
     alembic upgrade head
     ```
 
-### 4. Accessing the API
+### 4. 初始化管理员用户
+
+在完成数据库迁移后，您可以创建一个默认的管理员用户：
+
+```bash
+# 使用 Shell 脚本
+./run.sh init-admin
+
+# 或使用 Makefile
+make init-admin
+
+# 或直接运行
+uv run python scripts/init_admin.py
+```
+
+这将创建一个用户名为 `admin`，密码为 `123456` 的超级管理员用户。
+
+### 5. Accessing the API
 
 -   **API Base URL**: `http://localhost:8000/api/v1`
 -   **Scalar UI**: `http://localhost:8000/scalar`
 -   **Swagger UI**: `http://localhost:8000/docs`
+
+## 便捷启动方式
+
+本项目提供了多种便捷的启动方式，您可以根据喜好选择：
+
+### 方式一：使用 Shell 脚本（推荐）
+
+```bash
+# 安装依赖
+./run.sh install
+
+# 启动开发服务器（端口8001）
+./run.sh dev
+
+# 启动生产服务器（端口8000）
+./run.sh start
+
+# 运行测试
+./run.sh test
+
+# 代码检查
+./run.sh lint
+
+# 代码格式化
+./run.sh format
+
+# 清理缓存
+./run.sh clean
+
+# 查看帮助
+./run.sh help
+```
+
+### 方式二：使用 Makefile
+
+```bash
+# 安装依赖
+make install
+
+# 启动开发服务器（端口8001）
+make dev
+
+# 启动生产服务器（端口8000）
+make start
+
+# 运行测试
+make test
+
+# 代码检查
+make lint
+
+# 代码格式化
+make format
+
+# 清理缓存
+make clean
+```
+
+
+
+### 方式三：直接命令
+
+```bash
+# 启动开发服务器（端口8001）
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
+
+# 启动生产服务器（端口8000）
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
 ## Adding a New Domain
 

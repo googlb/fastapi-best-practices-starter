@@ -1,12 +1,10 @@
 from fastapi import APIRouter
 
-# Import routers from domains
-from app.domains.news.router import router as news_router
-from app.domains.user.router import router as user_router
-# from app.domains.order.router import router as order_router
+# Import routers from new structure
+from app.system.api.router import api_router as system_router
+from app.business.api.router import api_router as business_router
 
 api_v1_router = APIRouter()
 
-api_v1_router.include_router(news_router)
-api_v1_router.include_router(user_router)
-# api_v1_router.include_router(order_router)
+api_v1_router.include_router(system_router, prefix="/system")
+api_v1_router.include_router(business_router, prefix="/api")

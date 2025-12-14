@@ -15,3 +15,9 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     )
     async with async_session() as session:
         yield session
+
+
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    """别名函数，与get_async_session功能相同，用于保持一致性"""
+    async for session in get_async_session():
+        yield session

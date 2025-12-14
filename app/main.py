@@ -53,7 +53,7 @@ async def scalar_html():
         title="API Documentation Hub",
         openapi_url="/openapi.json",
         # UI 风格配置
-        theme=Theme.DEFAULT,      # 推荐 purple 或 deepSpace
+        theme=Theme.PURPLE,      # 推荐 purple 或 deepSpace
         layout=Layout.MODERN,     # modern 布局更适合多源文档
         hide_models=True,    # 可选：初始隐藏底部的 Models 定义，让界面更清爽
     )
