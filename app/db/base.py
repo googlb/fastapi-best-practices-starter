@@ -9,8 +9,6 @@ from app.system.models import Role, Menu, Dict, DictData
 # Level 1 (依赖 Level 0)
 from app.system.models import SysUser
 
-# Level 2 (依赖 Level 1)
-from app.business.models import News, Order, Product, ProductCategory
 
 # You might not need to do anything else here.
 # Alembic will typically look at SQLModel.metadata for all registered models.
