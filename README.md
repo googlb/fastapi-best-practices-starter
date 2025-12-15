@@ -1,187 +1,372 @@
 # FastAPI Best Practices Starter
 
-This project is a production-grade starter template for building FastAPI applications, designed with Domain-Driven Design (DDD) and Vertical Slice Architecture principles. It emphasizes a clean, scalable, and maintainable codebase.
+A production-grade starter template for building FastAPI applications with Domain-Driven Design (DDD) and modern architecture patterns. This project emphasizes clean, scalable, and maintainable codebase following industry best practices.
 
-## Core Principles
+## Features
 
--   **Domain-Driven Design (DDD)**: Code is organized around business domains (`app/domains`). Each domain is a self-contained vertical slice with its own routes, models, and business logic.
--   **Clean API Layer**: `main.py` is minimal. All API routes are aggregated in `app/api/v1/router.py`.
--   **Circular Dependency Prevention**: The project uses a central model registry at `app/db/base.py`. This allows Alembic to discover all database models for migrations without creating import cycles. Business logic **must not** import models from `app/db/base.py`.
+- **Domain-Driven Design (DDD)**: Organized around business domains with vertical slice architecture
+- **Modern Tech Stack**: FastAPI, SQLModel, PostgreSQL, Alembic, Pydantic V2
+- **Authentication & Authorization**: JWT-based auth system with role-based access control
+- **API Documentation**: Scalar UI and Swagger UI for interactive API docs
+- **Code Quality**: Integrated linting, formatting, and type checking
+- **Database Management**: Automated migrations with Alembic
+- **Development Tools**: Pre-configured scripts for common development tasks
+
+## Tech Stack
+
+- **Backend**: FastAPI with async support
+- **ORM**: SQLModel (async)
+- **Database**: PostgreSQL with asyncpg driver
+- **Authentication**: JWT tokens with bcrypt password hashing
+- **Validation**: Pydantic V2
+- **Database Migrations**: Alembic
+- **Code Quality**: Ruff (linting & formatting), MyPy (type checking)
+- **Testing**: Pytest with async support
+- **Documentation**: Scalar UI and Swagger UI
+- **Deployment**: Gunicorn for production
 
 ## Project Architecture
 
 ```
 fastapi-best-practices-starter/
-├── app/
+├── app/                        # Main application directory
 │   ├── __init__.py
-│   ├── main.py                  # Entrypoint: Initializes app, mounts the main API router
-│   ├── api/                     # API Aggregation Layer
+│   ├── main.py                 # Application entry point
+│   ├── api/                    # API aggregation layer
 │   │   └── v1/
-│   │       └── router.py        # Aggregates all domain routers, adds `/api/v1` prefix
-│   ├── core/                    # Core Configuration (Settings, Security, Exceptions)
-│   ├── db/                      # Database Infrastructure
-│   │   └── base.py              # Model Registry: Imports all SQLModels for Alembic
-│   ├── dependencies/            # Global Dependency Injection (e.g., DB Session)
-│   ├── domains/                 # Business Domains (Vertical Slices)
-│   │   ├── news/                # Example Domain
-│   │   │   ├── router.py        # Domain-specific routes
-│   │   │   ├── models.py        # SQLModel definitions
-│   │   │   ├── schemas.py       # Pydantic DTOs for I/O
-│   │   │   └── crud.py          # Database operations
-│   │   └── user/                # User-related domain
-│   └── utils/                   # Utility functions
-├── alembic/
-│   └── env.py                   # Configured to use app.db.base for metadata
-├── .env
-├── docker-compose.yml
-└── pyproject.toml
+│   │       └── router.py        # Main API router
+│   ├── core/                   # Core configurations
+│   │   ├── config.py           # Application settings
+│   │   ├── security.py         # Security utilities
+│   │   ├── exceptions.py       # Custom exceptions
+│   │   ├── logging.py          # Logging configuration
+│   │   └── resp.py             # Response formatting
+│   ├── db/                     # Database infrastructure
+│   │   ├── base.py             # Model registry for Alembic
+│   │   ├── crud_base.py        # Base CRUD operations
+│   │   └── mixins.py           # Model mixins
+│   ├── dependencies/           # Global dependencies
+│   │   ├── auth.py             # Authentication dependencies
+│   │   └── database.py         # Database session management
+│   ├── system/                 # System domain (users, roles, etc.)
+│   │   ├── api/                # API routes
+│   │   │   ├── user.py         # User endpoints
+│   │   │   ├── role.py         # Role endpoints
+│   │   │   ├── menu.py         # Menu endpoints
+│   │   │   ├── dict.py         # Dictionary endpoints
+│   │   │   └── router.py       # Domain router aggregation
+│   │   ├── crud/               # CRUD operations
+│   │   │   ├── crud_user.py    # User CRUD
+│   │   │   ├── crud_role.py    # Role CRUD
+│   │   │   └── ...
+│   │   ├── models.py           # SQLModel definitions
+│   │   ├── schemas/            # Pydantic models
+│   │   │   ├── user.py         # User schemas
+│   │   │   ├── role.py         # Role schemas
+│   │   │   └── ...
+│   │   └── services/           # Business logic
+│   │       └── user_service.py # User services
+│   └── utils/                  # Utility functions
+├── alembic/                    # Database migrations
+│   ├── env.py                  # Alembic configuration
+│   └── versions/               # Migration files
+├── scripts/                    # Utility scripts
+│   └── init_admin.py           # Admin initialization
+├── tests/                      # Test files
+├── .env.example                # Environment variables template
+├── docker-compose.yml          # Docker configuration
+├── pyproject.toml              # Project configuration
+├── Makefile                    # Make commands
+└── run.sh                      # Shell script for common tasks
 ```
-
-## The `db/base.py` Pattern
-
-This pattern is crucial for preventing circular dependencies while ensuring Alembic works correctly.
-
-1.  **Model Definition**: All `SQLModel` classes are defined in their respective domain, e.g., `app/domains/news/models.py`.
-2.  **Model Registration**: To make models discoverable by Alembic, they **must** be imported in `app/db/base.py`.
-    ```python
-    # app/db/base.py
-    from sqlmodel import SQLModel
-    from app.domains.news.models import News
-    from app.domains.user.models import User # etc.
-    ```
-3.  **Usage Rule**: Business logic (e.g., in `crud.py` or `router.py`) **must** import models directly from their source, not from `app/db/base.py`.
-    ```python
-    # CORRECT: in app/domains/news/crud.py
-    from app.domains.news.models import News
-
-    # WRONG - DO NOT DO THIS:
-    # from app.db.base import News
-    ```
 
 ## Getting Started
 
-### 1. Prerequisites
+### Prerequisites
 
--   Docker
--   Python 3.12+
--   `uv` or `pip`
+- Python 3.12+
+- PostgreSQL
+- `uv` package manager (recommended) or `pip`
 
-### 2. Setup
+### Installation
 
-1.  **Clone the repository:** `git clone <your-repo-url>`
-2.  **Configure Environment**: Create a `.env` file and fill in your database credentials and a secret key.
-3.  **Install Dependencies**: `uv pip install -e .` or `pip install -e .`
-4.  **Launch Services**: `docker-compose up --build`
+1. **Clone the repository**:
+   ```bash
+   git clone <your-repo-url>
+   cd fastapi-best-practices-starter
+   ```
 
-### 3. Database Migrations
+2. **Set up environment**:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database credentials and secret key
+   ```
 
-With the services running, execute these commands in a separate terminal:
+3. **Install dependencies**:
+   ```bash
+   # Using uv (recommended)
+   ./run.sh install
+   # or
+   make install
+   # or directly
+   uv sync --dev
+   ```
 
-1.  **Generate Migration** (after changing models):
-    ```bash
-    alembic revision --autogenerate -m "Describe your changes"
-    ```
-2.  **Apply Migration**:
-    ```bash
-    alembic upgrade head
-    ```
+4. **Set up the database**:
+   ```bash
+   # Generate and apply migrations
+   ./run.sh migrate
+   # or
+   alembic revision --autogenerate -m "Initial migration"
+   alembic upgrade head
+   ```
 
-### 4. 初始化管理员用户
+5. **Initialize admin user**:
+   ```bash
+   ./run.sh init-admin
+   # This creates an admin user with username: admin, password: abc123
+   ```
 
-在完成数据库迁移后，您可以创建一个默认的管理员用户：
+### Running the Application
 
-```bash
-# 使用 Shell 脚本
-./run.sh init-admin
-
-# 或使用 Makefile
-make init-admin
-
-# 或直接运行
-uv run python scripts/init_admin.py
-```
-
-这将创建一个用户名为 `admin`，密码为 `123456` 的超级管理员用户。
-
-### 5. Accessing the API
-
--   **API Base URL**: `http://localhost:8000/api/v1`
--   **Scalar UI**: `http://localhost:8000/scalar`
--   **Swagger UI**: `http://localhost:8000/docs`
-
-## 便捷启动方式
-
-本项目提供了多种便捷的启动方式，您可以根据喜好选择：
-
-### 方式一：使用 Shell 脚本（推荐）
+#### Development Mode
 
 ```bash
-# 安装依赖
-./run.sh install
-
-# 启动开发服务器（端口8001）
+# Using the shell script (recommended)
 ./run.sh dev
 
-# 启动生产服务器（端口8000）
-./run.sh start
-
-# 运行测试
-./run.sh test
-
-# 代码检查
-./run.sh lint
-
-# 代码格式化
-./run.sh format
-
-# 清理缓存
-./run.sh clean
-
-# 查看帮助
-./run.sh help
-```
-
-### 方式二：使用 Makefile
-
-```bash
-# 安装依赖
-make install
-
-# 启动开发服务器（端口8001）
+# Using Makefile
 make dev
 
-# 启动生产服务器（端口8000）
-make start
-
-# 运行测试
-make test
-
-# 代码检查
-make lint
-
-# 代码格式化
-make format
-
-# 清理缓存
-make clean
+# Direct command
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 ```
 
-
-
-### 方式三：直接命令
+#### Production Mode
 
 ```bash
-# 启动开发服务器（端口8001）
-uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
+# Using the shell script
+./run.sh start
 
-# 启动生产服务器（端口8000）
+# Using Makefile
+make start
+
+# Direct command
 uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+### API Documentation
+
+Once the application is running, you can access:
+
+- **Scalar UI**: `http://localhost:8001/scalar` (development) or `http://localhost:8000/scalar` (production)
+- **Swagger UI**: `http://localhost:8001/docs` (development) or `http://localhost:8000/docs` (production)
+
+## Authentication
+
+The application uses JWT-based authentication. To access protected endpoints:
+
+1. **Login** to get an access token:
+   ```bash
+   curl -X POST "http://localhost:8001/api/v1/sys/users/login" \
+        -H "Content-Type: application/json" \
+        -d '{"username": "admin", "password": "abc123"}'
+   ```
+
+2. **Use the token** in subsequent requests:
+   ```bash
+   curl -X GET "http://localhost:8001/api/v1/sys/users/me" \
+        -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+   ```
+
+## Development Workflow
+
+### Code Quality
+
+```bash
+# Run linting
+./run.sh lint
+# or
+make lint
+
+# Format code
+./run.sh format
+# or
+make format
+```
+
+### Testing
+
+```bash
+# Run tests
+./run.sh test
+# or
+make test
+# or directly
+uv run pytest
+```
+
+### Database Migrations
+
+```bash
+# Generate a new migration
+alembic revision --autogenerate -m "Description of changes"
+
+# Apply migrations
+alembic upgrade head
+
+# Downgrade migrations
+alembic downgrade -1
+```
+
+### Cleaning Up
+
+```bash
+# Clean cache files
+./run.sh clean
+# or
+make clean
+```
+
+## CRUD Operations Standards
+
+This project follows a strict naming convention for CRUD operations:
+
+| Operation | Method Name | Return Type | Description |
+|-----------|------------|-------------|-------------|
+| Get by ID | `get` | `Optional[Model]` | Get a single record by primary key |
+| Paginated List | `get_page` | `Tuple[List[Model], int]` | Get paginated results with total count |
+| List | `get_list` | `List[Model]` | Get all records (for dropdowns, etc.) |
+| Create | `create` | `Model` | Create a new record |
+| Update | `update` | `Model` | Update an existing record |
+| Delete | `delete` | `bool` | Delete a record |
+
 ## Adding a New Domain
 
-1.  Create a new directory `app/domains/my_new_domain/`.
-2.  Add your `models.py`, `router.py`, `schemas.py`, etc.
-3.  In `app/db/base.py`, add `from app.domains.my_new_domain.models import MyModel`.
-4.  In `app/api/v1/router.py`, import and include the new router.
-5.  Generate a new migration (`alembic revision --autogenerate`) and apply it.
+1. **Create domain structure**:
+   ```bash
+   mkdir -p app/system/api
+   mkdir -p app/system/crud
+   mkdir -p app/system/schemas
+   ```
+
+2. **Create model** in `app/system/models.py`:
+   ```python
+   from sqlmodel import SQLModel, Field
+   from app.db.mixins import BaseModel
+   
+   class NewModel(BaseModel, table=True):
+       __tablename__ = "new_models"
+       
+       name: str = Field(index=True)
+       description: Optional[str] = None
+   ```
+
+3. **Create schemas** in `app/system/schemas/new_model.py`:
+   ```python
+   from pydantic import BaseModel
+   from typing import Optional
+   
+   class NewModelBase(BaseModel):
+       name: str
+       description: Optional[str] = None
+   
+   class NewModelCreate(NewModelBase):
+       pass
+   
+   class NewModelUpdate(BaseModel):
+       name: Optional[str] = None
+       description: Optional[str] = None
+   
+   class NewModelResponse(NewModelBase):
+       id: int
+       
+       class Config:
+           from_attributes = True
+   ```
+
+4. **Create CRUD operations** in `app/system/crud/crud_new_model.py`:
+   ```python
+   from app.db.crud_base import CRUDBase
+   from app.system.models import NewModel
+   from app.system.schemas.new_model import NewModelCreate, NewModelUpdate
+   
+   class CRUDNewModel(CRUDBase[NewModel, NewModelCreate, NewModelUpdate]):
+       pass
+   
+   crud_new_model = CRUDNewModel(NewModel)
+   ```
+
+5. **Create API endpoints** in `app/system/api/new_model.py`:
+   ```python
+   from fastapi import APIRouter, Depends, HTTPException
+   from app.dependencies.database import get_session
+   from app.system.crud.crud_new_model import crud_new_model
+   from app.system.schemas.new_model import NewModelCreate, NewModelResponse
+   
+   router = APIRouter()
+   
+   @router.post("/", response_model=NewModelResponse)
+   async def create_new_model(
+       *,
+       session: AsyncSession = Depends(get_session),
+       new_model_in: NewModelCreate
+   ):
+       return await crud_new_model.create(session, obj_in=new_model_in)
+   ```
+
+6. **Register the router** in `app/system/api/router.py`:
+   ```python
+   from app.system.api import new_model
+   
+   api_router.include_router(new_model.router, prefix="/new-models", tags=["new-models"])
+   ```
+
+7. **Generate and apply migration**:
+   ```bash
+   alembic revision --autogenerate -m "Add new model"
+   alembic upgrade head
+   ```
+
+## Environment Variables
+
+Create a `.env` file based on `.env.example`:
+
+```bash
+# Database
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password
+POSTGRES_SERVER=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=app
+
+# JWT
+SECRET_KEY=your_super_secret_key_change_me
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+```
+
+## Docker Support
+
+The project includes Docker support with `docker-compose.yml`. To use Docker:
+
+```bash
+# Build and start services
+docker-compose up --build
+
+# Stop services
+docker-compose down
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
