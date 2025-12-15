@@ -29,7 +29,7 @@ async def login(
         session, credentials.username, credentials.password
     )
 
-    if not result.success:
+    if not result.is_success:
         return result
 
     user = result.data

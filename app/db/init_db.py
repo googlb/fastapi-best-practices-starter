@@ -1,10 +1,4 @@
 import asyncio
-import sys
-from pathlib import Path
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.append(str(PROJECT_ROOT))
-
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -43,6 +37,7 @@ async def init_superuser(session: AsyncSession) -> None:
             username=DEFAULT_ADMIN_USER,
             password=DEFAULT_ADMIN_PWD,
             email=DEFAULT_ADMIN_EMAIL,
+            nickname="超级管理员",
             is_active=True,
             is_superuser=True,
             role_ids=[]

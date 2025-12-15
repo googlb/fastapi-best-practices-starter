@@ -82,7 +82,10 @@ class SysUserService:
             return Result.error(403, "用户已被禁用")
 
         # 更新最后登录时间
-        await self.update_last_login(session, user.id)
+        user.last_login_at = datetime.now(datetime.UTC)
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
 
         return Result.success(user)
 

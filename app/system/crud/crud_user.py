@@ -12,12 +12,12 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
     async def get_by_username(self, session: AsyncSession, username: str) -> Optional[SysUser]:
         statement = select(SysUser).where(SysUser.username == username)
         result = await session.exec(statement)
-        return result.first_or_none() # 推荐用 first_or_none 替代 first (语义更准)
+        return result.first()
 
     async def get_by_email(self, session: AsyncSession, email: str) -> Optional[SysUser]:
         statement = select(SysUser).where(SysUser.email == email)
         result = await session.exec(statement)
-        return result.first_or_none()
+        return result.first()
 
     async def create(self, session: AsyncSession, *, obj_in: SysUserCreate) -> SysUser:
         """

@@ -20,6 +20,10 @@ class Result(BaseModel, Generic[T]):
 
     model_config = ConfigDict(populate_by_name=True)
 
+    @property
+    def is_success(self) -> bool:
+        return self.code == 0
+
     @classmethod
     def success(cls, data: Optional[T] = None) -> "Result[T]":
         return cls(code=0, msg="success", data=data)
