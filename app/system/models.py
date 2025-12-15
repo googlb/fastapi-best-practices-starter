@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional, List
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, Relationship, Column
+from sqlalchemy import DateTime
 from app.db.mixins import BaseModel, SystemModel, FullAuditModel
 
 # ===========================================================================
@@ -39,7 +40,11 @@ class SysUser(BaseModel, table=True):
     hashed_password: str = Field(description="密码哈希值")
     is_active: bool = Field(default=True, description="是否激活")
     is_superuser: bool = Field(default=False, description="是否超级管理员")
-    last_login_at: Optional[datetime] = Field(default=None, description="最后登录时间")
+    last_login_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True)),
+        description="最后登录时间"
+    )
     remark: Optional[str] = Field(default=None, max_length=500, description="备注")
 
     # 关系 (M:N)

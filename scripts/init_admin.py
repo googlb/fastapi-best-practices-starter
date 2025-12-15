@@ -21,7 +21,7 @@ from app.system.schemas.user import SysUserCreate
 # 配置区域：默认超级管理员账号
 # =======================================================
 DEFAULT_ADMIN_USER = "admin"
-DEFAULT_ADMIN_PWD = "password123"
+DEFAULT_ADMIN_PWD = "abc123"
 DEFAULT_ADMIN_EMAIL = "admin@example.com"
 
 

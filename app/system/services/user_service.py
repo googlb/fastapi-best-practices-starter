@@ -1,5 +1,5 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from app.system.crud.crud_user import crud_user
@@ -82,7 +82,7 @@ class SysUserService:
             return Result.error(403, "用户已被禁用")
 
         # 更新最后登录时间
-        user.last_login_at = datetime.now(datetime.UTC)
+        user.last_login_at = datetime.now(timezone.utc)
         session.add(user)
         await session.commit()
         await session.refresh(user)
