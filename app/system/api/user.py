@@ -5,20 +5,19 @@ from datetime import timedelta
 from app.dependencies.database import get_session
 from app.dependencies.auth import get_current_user
 from app.system.schemas.user import (
-    SysUserCreate, 
-    SysUserUpdate, 
-    SysUserResponse, 
-    UserLogin, 
+    SysUserCreate,
+    SysUserUpdate,
+    SysUserResponse,
+    UserLogin,
     TokenResponse
 )
-from app.system.crud.crud_user import crud_sys_user
+from app.system.crud.crud_user import crud_user
 from app.system.services.user_service import sys_user_service
 from app.core.security import create_access_token, create_refresh_token
 from app.system.models import SysUser
 from app.core.resp import Result
 
-router = APIRouter(prefix="/users", tags=["系统-用户"])
-
+router = APIRouter()
 
 @router.post("/login")
 async def login(
@@ -29,14 +28,14 @@ async def login(
     result = await sys_user_service.authenticate_user(
         session, credentials.username, credentials.password
     )
-    
+
     if not result.success:
         return result
-    
+
     user = result.data
     access_token = create_access_token(data={"sub": str(user.id)})
     refresh_token = create_refresh_token(data={"sub": str(user.id)})
-    
+
     return Result.success({
         "access_token": access_token,
         "refresh_token": refresh_token,
@@ -61,12 +60,12 @@ async def create_user(
     """创建用户"""
     if not current_user.is_superuser:
         return Result.error(403, "权限不足")
-    
+
     result = await sys_user_service.create_user(session, user_in)
-    
+
     if not result.success:
         return result
-    
+
     return result
 
 
@@ -81,12 +80,12 @@ async def update_user(
     """更新用户"""
     if not current_user.is_superuser and current_user.id != user_id:
         return Result.error(403, "权限不足")
-    
+
     result = await sys_user_service.update_user(session, user_id, user_in)
-    
+
     if not result.success:
         return result
-    
+
     return result
 
 
@@ -100,11 +99,11 @@ async def get_user(
     """获取用户详情"""
     if not current_user.is_superuser and current_user.id != user_id:
         return Result.error(403, "权限不足")
-    
-    user = await crud_sys_user.get(session, user_id)
+
+    user = await crud_user.get(session, user_id)
     if not user:
         return Result.error(404, "用户不存在")
-    
+
     return Result.success(user)
 
 
@@ -118,10 +117,10 @@ async def delete_user(
     """删除用户"""
     if not current_user.is_superuser:
         return Result.error(403, "权限不足")
-    
-    user = await crud_sys_user.get(session, user_id)
+
+    user = await crud_user.get(session, user_id)
     if not user:
         return Result.error(404, "用户不存在")
-    
-    await crud_sys_user.delete(session, user_id)
+
+    await crud_user.delete(session, user_id)
     return Result.success({"message": "用户删除成功"})

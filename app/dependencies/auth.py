@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.core.security import decode_token
-from app.system.crud.crud_user import crud_sys_user
+from app.system.crud.crud_user import crud_user
 from app.dependencies.database import get_session
 from app.system.models import SysUser
 
@@ -15,41 +15,41 @@ async def get_current_user(
 ) -> SysUser:
     token = credentials.credentials
     payload = decode_token(token)
-    
+
     if not payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
         )
-    
+
     user_id = payload.get("sub")
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
         )
-    
+
     try:
         user_int_id = int(user_id)
-        user = await crud_sys_user.get(session, user_int_id)
+        user = await crud_user.get(session, user_int_id)
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
         )
-    
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
         )
-    
+
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User is inactive",
         )
-    
+
     return user
 
 
