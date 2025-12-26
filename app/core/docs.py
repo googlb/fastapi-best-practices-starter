@@ -53,16 +53,16 @@ def register_docs(app: FastAPI):
             # 不要传 openapi_url="/openapi.json"，否则下面这些配置都不生效
             sources=[
                 OpenAPISource(
-                    title="🛡️ 后台管理 (System)",
+                    title="后台管理 (System)",
                     url="/openapi/sys.json",
                     default=True
                 ),
                 OpenAPISource(
-                    title="📱 客户端 (App)",
+                    title="客户端 (App)",
                     url="/openapi/app.json"
                 ),
                 OpenAPISource(
-                    title="👁️ 全量接口 (Debug)",
+                    title="全量接口 (Debug)",
                     url="/openapi.json"
                 )
             ]
