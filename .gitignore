@@ -133,5 +133,6 @@ doc/
 GEMINI.md
 .geminiignore
 .qodo/
+.amazonq/
 .python-version
 uv.lock
