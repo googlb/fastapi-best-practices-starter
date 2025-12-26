@@ -2,6 +2,17 @@
 
 A production-grade starter template for building FastAPI applications with Domain-Driven Design (DDD) and modern architecture patterns. This project emphasizes clean, scalable, and maintainable codebase following industry best practices.
 
+## API Documentation
+
+Once the application is running, you can access:
+
+- **Scalar UI**: `http://localhost:8001/docs` (development) or `http://localhost:8000/docs` (production)
+
+### Screenshots
+
+**Scalar UI Interface:**
+![Scalar UI](docs/screenshots/scalar-ui.png)
+
 ## Features
 
 - **Domain-Driven Design (DDD)**: Organized around business domains with vertical slice architecture
@@ -25,16 +36,6 @@ A production-grade starter template for building FastAPI applications with Domai
 - **Documentation**: Scalar UI and Swagger UI
 - **Deployment**: Gunicorn for production
 
-## API Documentation
-
-Once the application is running, you can access:
-
-- **Scalar UI**: `http://localhost:8001/docs` (development) or `http://localhost:8000/docs` (production)
-
-### Screenshots
-
-**Scalar UI Interface:**
-![Scalar UI](docs/screenshots/scalar-ui.png)
 
 ## Project Architecture
 
