@@ -15,6 +15,12 @@ class CRUDRoleMenu:
         )
         result = await session.exec(statement)
         return result.all()
+
+    async def get_role_menu_ids(self, session: AsyncSession, role_id: int) -> List[int]:
+        """获取角色拥有的菜单ID列表"""
+        statement = select(SysRoleMenu.menu_id).where(SysRoleMenu.role_id == role_id)
+        result = await session.exec(statement)
+        return result.all()
     
     async def get_menu_roles(self, session: AsyncSession, menu_id: int) -> List[SysRole]:
         """获取菜单所属的角色列表"""
