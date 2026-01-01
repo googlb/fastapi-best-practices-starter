@@ -8,7 +8,7 @@ from app.db.mixins import BaseModel, SystemModel, FullAuditModel
 # 关联表 (Link Tables) - 外键全部改为 int
 # ===========================================================================
 
-class SysUserRole(BaseModel, table=True):
+class SysUserRole(TimestampMixin, SQLModel, table=True):
     """用户角色关联表"""
     __tablename__ = "sys_user_roles"
     __table_args__ = {"comment": "用户与角色的多对多关系"}
@@ -17,7 +17,7 @@ class SysUserRole(BaseModel, table=True):
     role_id: int = Field(foreign_key="sys_roles.id", primary_key=True, description="角色ID")
 
 
-class SysRoleMenu(BaseModel, table=True):
+class SysRoleMenu(TimestampMixin, SQLModel, table=True):
     """角色菜单关联表"""
     __tablename__ = "sys_role_menus"
     __table_args__ = {"comment": "角色与菜单的多对多关系"}

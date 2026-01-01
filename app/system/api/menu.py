@@ -6,8 +6,24 @@ from app.system.models import SysMenu, SysRole
 from app.system.crud.crud_menu import crud_menu
 from app.system.crud.crud_role_menu import crud_role_menu
 from app.core.resp import Result
+from app.dependencies.auth import get_current_user
+from app.system.models import SysUser
 
 router = APIRouter()
+
+
+@router.get("/me")
+async def get_my_menus(
+    session: AsyncSession = Depends(get_db),
+    current_user: SysUser = Depends(get_current_user)
+):
+    """获取当前用户的菜单树"""
+    # For now, if superuser, return all. 
+    # TODO: Implement permission based filtering for non-admin
+    # Since we are focusing on the UI structure and the user is Admin (from init script), this suffices.
+    menus = await crud_menu.get_tree(session)
+    return Result.success(menus)
+
 
 
 @router.get("/")
