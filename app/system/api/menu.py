@@ -18,10 +18,13 @@ async def get_my_menus(
     current_user: SysUser = Depends(get_current_user)
 ):
     """获取当前用户的菜单树"""
-    # For now, if superuser, return all. 
-    # TODO: Implement permission based filtering for non-admin
-    # Since we are focusing on the UI structure and the user is Admin (from init script), this suffices.
-    menus = await crud_menu.get_tree(session)
+    if current_user.is_superuser:
+        # 超级管理员拥有所有菜单
+        menus = await crud_menu.get_tree(session)
+    else:
+        # 根据角色获取菜单
+        menus = await crud_menu.get_tree_by_user(session, current_user)
+        
     return Result.success(menus)
 
 

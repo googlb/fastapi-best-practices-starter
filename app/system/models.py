@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship, Column
 from sqlalchemy import DateTime
-from app.db.mixins import BaseModel, SystemModel, FullAuditModel
+from app.db.mixins import BaseModel, SystemModel, FullAuditModel, TimestampMixin
 
 # ===========================================================================
 # 关联表 (Link Tables) - 外键全部改为 int
