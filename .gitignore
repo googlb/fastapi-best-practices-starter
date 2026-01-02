@@ -136,3 +136,4 @@ GEMINI.md
 .amazonq/
 .python-version
 uv.lock
+.codebuddy/

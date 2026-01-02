@@ -139,6 +139,12 @@ fastapi-best-practices-starter/
    # This creates an admin user with username: admin, password: abc123
    ```
 
+6. **Initialize system menus** (optional):
+   ```bash
+   # Execute the SQL script to initialize system menus and roles
+   psql -U your_username -d your_database -f scripts/init_menus.sql
+   ```
+
 ### Running the Application
 
 #### Development Mode
