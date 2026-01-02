@@ -137,3 +137,6 @@ GEMINI.md
 .python-version
 uv.lock
 .codebuddy/
+.qoder/
+ui/
+.trae/
