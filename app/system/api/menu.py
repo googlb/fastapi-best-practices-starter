@@ -24,12 +24,12 @@ async def get_my_menus(
     else:
         # 根据角色获取菜单
         menus = await crud_menu.get_tree_by_user(session, current_user)
-        
+
     return Result.success(menus)
 
 
 
-@router.get("/")
+@router.get("")
 async def get_menus(
     page: int = 1,
     size: int = 20,
@@ -71,7 +71,7 @@ async def get_menu_roles(
     menu = await crud_menu.get(session, menu_id)
     if not menu:
         return Result.error(404, "菜单不存在")
-    
+
     roles = await crud_role_menu.get_menu_roles(session, menu_id)
     return Result.success(roles)
 
@@ -96,7 +96,7 @@ async def update_menu(
     menu = await crud_menu.get(session, menu_id)
     if not menu:
         return Result.error(404, "菜单不存在")
-    
+
     menu = await crud_menu.update(session, menu, menu_data)
     return Result.success(menu)
 
@@ -110,6 +110,6 @@ async def delete_menu(
     menu = await crud_menu.get(session, menu_id)
     if not menu:
         return Result.error(404, "菜单不存在")
-    
+
     await crud_menu.delete(session, menu_id)
     return Result.success({"message": "Menu deleted successfully"})

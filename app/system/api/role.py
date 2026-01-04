@@ -11,7 +11,7 @@ from app.system.schemas.role import RoleCreate, RoleUpdate
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("")
 async def get_roles(
     page: int = 1,
     size: int = 20,

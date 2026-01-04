@@ -8,7 +8,7 @@ from app.core.resp import Result
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("")
 async def get_dicts(
     page: int = 1,
     size: int = 20,

@@ -11,6 +11,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.PROJECT_NAME,
         version="1.0.0",
+        redirect_slashes=False,  # 关闭自动重定向
         docs_url=None,    # 禁用默认 Swagger UI
         redoc_url=None,   # 禁用默认 ReDoc
         openapi_url="/openapi.json" # 保留默认的全量 JSON 源

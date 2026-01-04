@@ -28,7 +28,7 @@ async def get_current_user_info(
     return Result.success(current_user)
 
 
-@router.post("/")
+@router.post("")
 async def create_user(
     *,
     session: AsyncSession = Depends(get_session),
