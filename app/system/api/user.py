@@ -19,28 +19,6 @@ from app.core.resp import Result
 
 router = APIRouter()
 
-@router.post("/login")
-async def login(
-    credentials: UserLogin,
-    session: AsyncSession = Depends(get_session),
-):
-    """用户登录"""
-    result = await sys_user_service.authenticate_user(
-        session, credentials.username, credentials.password
-    )
-
-    if not result.is_success:
-        return result
-
-    user = result.data
-    access_token = create_access_token(data={"sub": str(user.id)})
-    refresh_token = create_refresh_token(data={"sub": str(user.id)})
-
-    return Result.success({
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-    })
-
 
 @router.get("/me")
 async def get_current_user_info(
