@@ -34,11 +34,11 @@ def register_docs(app: FastAPI):
     # 1. 定义 JSON 数据源 (隐蔽路由)
     @app.get("/openapi/sys.json", include_in_schema=False)
     async def openapi_sys():
-        return custom_openapi(app, tag_prefix="Sys", title="🛡️ 后台管理系统 API", version="1.0")
+        return custom_openapi(app, tag_prefix="Sys", title="后台管理系统 API", version="1.0")
 
     @app.get("/openapi/app.json", include_in_schema=False)
     async def openapi_app():
-        return custom_openapi(app, tag_prefix="App", title="📱 客户端应用 API", version="1.0")
+        return custom_openapi(app, tag_prefix="App", title="📱客户端应用 API", version="1.0")
 
     # 2. 定义 Scalar 文档入口 (覆盖 /docs)
     @app.get("/docs", include_in_schema=False)
