@@ -1,44 +1,75 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
-from datetime import timedelta
 
 from app.dependencies.database import get_session
 from app.dependencies.auth import get_current_user
+from app.dependencies.pagination import PageDep
+from app.dependencies.permission import Perms
 from app.system.schemas.user import (
     SysUserCreate,
     SysUserUpdate,
-    SysUserResponse,
-    UserLogin,
-    TokenResponse
+    SysUserResponse
 )
 from app.system.crud.crud_user import crud_user
 from app.system.services.user_service import sys_user_service
-from app.core.security import create_access_token, create_refresh_token
 from app.system.models import SysUser
-from app.core.resp import Result
+from app.core.resp import Result, PageInfo
 
 router = APIRouter()
 
 
-@router.get("/me")
+@router.get("/me", summary="获取当前用户信息")
 async def get_current_user_info(
     current_user: SysUser = Depends(get_current_user),
 ):
-    """获取当前用户信息"""
+    """
+    获取当前登录用户的详细信息
+    无需特定权限标识，登录即可访问
+    """
     return Result.success(current_user)
 
 
-@router.post("")
+@router.get(
+    "",
+    summary="获取用户列表",
+    response_model=Result[PageInfo[SysUserResponse]],
+    dependencies=[Depends(Perms("system:user:list"))]
+)
+async def get_user_list(
+    *,
+    session: AsyncSession = Depends(get_session),
+    pagination: PageDep,
+    current_user: SysUser = Depends(get_current_user),
+):
+    """
+    分页获取用户列表
+    需要权限: system:user:list
+    """
+    # Service 层已优化，支持预加载 roles，不会报错 MissingGreenlet
+    result = await sys_user_service.get_user_page(
+        session=session,
+        page=pagination.page,
+        size=pagination.size,
+        current_user=current_user,
+    )
+    return result
+
+
+@router.post(
+    "",
+    summary="创建用户",
+    dependencies=[Depends(Perms("system:user:add"))]
+)
 async def create_user(
     *,
     session: AsyncSession = Depends(get_session),
     user_in: SysUserCreate,
-    current_user: SysUser = Depends(get_current_user)
 ):
-    """创建用户"""
-    if not current_user.is_superuser:
-        return Result.error(403, "权限不足")
-
+    """
+    创建新用户
+    需要权限: system:user:add
+    """
+    # 调用 Service 层 (注意：Service 层需要修复 keyword argument 问题)
     result = await sys_user_service.create_user(session, user_in)
 
     if not result.success:
@@ -47,18 +78,37 @@ async def create_user(
     return result
 
 
-@router.put("/{user_id}")
+@router.put(
+    "/{user_id}",
+    summary="更新用户",
+    dependencies=[Depends(Perms("system:user:update"))]
+)
 async def update_user(
     *,
     session: AsyncSession = Depends(get_session),
     user_id: int,
     user_in: SysUserUpdate,
-    current_user: SysUser = Depends(get_current_user)
 ):
-    """更新用户"""
-    if not current_user.is_superuser and current_user.id != user_id:
-        return Result.error(403, "权限不足")
+    """
+    更新用户信息
+    需要权限: system:user:update
+    """
+    # 1. 查出目标用户
+    target_user = await crud_user.get(session, user_id)
+    if not target_user:
+        return Result.error(404, "用户不存在")
 
+    # 2. 🛡️ 业务保护逻辑：保护 Admin 账号
+    if target_user.username == "admin":
+        # 禁止禁用 Admin
+        if user_in.is_active is False:
+            return Result.error(403, "系统超级管理员(admin)不允许被禁用")
+
+        # 禁止取消 Admin 的超级管理员身份
+        if user_in.is_superuser is False:
+            return Result.error(403, "无法取消系统管理员的超级权限")
+
+    # 3. 执行更新
     result = await sys_user_service.update_user(session, user_id, user_in)
 
     if not result.success:
@@ -67,17 +117,20 @@ async def update_user(
     return result
 
 
-@router.get("/{user_id}")
+@router.get(
+    "/{user_id}",
+    summary="获取用户详情",
+    dependencies=[Depends(Perms("system:user:query"))]  # 🔒 权限控制
+)
 async def get_user(
     *,
     session: AsyncSession = Depends(get_session),
     user_id: int,
-    current_user: SysUser = Depends(get_current_user)
 ):
-    """获取用户详情"""
-    if not current_user.is_superuser and current_user.id != user_id:
-        return Result.error(403, "权限不足")
-
+    """
+    根据ID获取用户详情
+    需要权限: system:user:query
+    """
     user = await crud_user.get(session, user_id)
     if not user:
         return Result.error(404, "用户不存在")
@@ -85,20 +138,32 @@ async def get_user(
     return Result.success(user)
 
 
-@router.delete("/{user_id}")
+@router.delete(
+    "/{user_id}",
+    summary="删除用户",
+    dependencies=[Depends(Perms("system:user:delete"))]
+)
 async def delete_user(
     *,
     session: AsyncSession = Depends(get_session),
     user_id: int,
     current_user: SysUser = Depends(get_current_user)
 ):
-    """删除用户"""
-    if not current_user.is_superuser:
-        return Result.error(403, "权限不足")
-
+    """
+    删除用户
+    需要权限: system:user:delete
+    """
+    # 1. 查出目标用户
     user = await crud_user.get(session, user_id)
     if not user:
         return Result.error(404, "用户不存在")
 
-    await crud_user.delete(session, user_id)
-    return Result.success({"message": "用户删除成功"})
+    if user.username == "admin":
+        return Result.error(403, "系统超级管理员(admin)不允许被删除")
+
+    if user.id == current_user.id:
+        return Result.error(403, "无法删除当前登录账号")
+
+    # 4. 执行删除
+    await crud_user.delete(session, id=user_id)
+    return Result.success(msg="用户删除成功")

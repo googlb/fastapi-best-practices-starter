@@ -8,6 +8,9 @@ license = { text = "MIT" }
 authors = [
     { name = "Your Name", email = "your@email.com" }
 ]
+dependencies = [
+    "self>=2020.12.3",
+]
 
 # 便捷启动脚本
 [project.scripts]
