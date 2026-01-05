@@ -18,7 +18,7 @@ from app.core.resp import Result, PageInfo
 router = APIRouter()
 
 
-@router.get("/me", summary="获取当前用户信息")
+@router.get("/me", summary="获取当前用户信息",response_model=Result[SysUserResponse])
 async def get_current_user_info(
     current_user: SysUser = Depends(get_current_user),
 ):
@@ -58,6 +58,7 @@ async def get_user_list(
 @router.post(
     "",
     summary="创建用户",
+    response_model=Result[SysUserResponse],
     dependencies=[Depends(Perms("system:user:add"))]
 )
 async def create_user(
@@ -120,7 +121,7 @@ async def update_user(
 @router.get(
     "/{user_id}",
     summary="获取用户详情",
-    dependencies=[Depends(Perms("system:user:query"))]  # 🔒 权限控制
+    dependencies=[Depends(Perms("system:user:query"))]
 )
 async def get_user(
     *,

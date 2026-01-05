@@ -10,7 +10,7 @@ from app.core.resp import Result
 
 
 class SysUserService:
-    async def create_user(self, session: AsyncSession, obj_in: SysUserCreate):
+    async def create_user(self, session: AsyncSession, obj_in: SysUserCreate)-> Result[SysUser]:
         """创建用户"""
         # 检查用户名是否已存在
         user = await crud_user.get_by_username(session, obj_in.username)
@@ -31,7 +31,7 @@ class SysUserService:
         session: AsyncSession,
         user_id: int,
         obj_in: SysUserUpdate
-    ) -> Result:
+    ) -> Result[SysUser]:
         """更新用户"""
         # 1. 查找是否存在
         db_obj = await crud_user.get(session, user_id)

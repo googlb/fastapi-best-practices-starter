@@ -50,6 +50,30 @@ class SysUser(BaseModel, table=True):
     # 关系 (M:N)
     roles: List["SysRole"] = Relationship(back_populates="users", link_model=SysUserRole)
 
+# ==================== Token 模型 (新增的) ====================
+class SysUserToken(SQLModel, table=True):
+    """
+    用户 Refresh Token 表
+    """
+    __tablename__ = "sys_user_tokens"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    # 令牌字符串 (或者 hash 值)
+    token: str = Field(index=True, unique=True, description="Refresh Token")
+
+    # 状态
+    is_used: bool = Field(default=False, description="是否已使用(轮换用)")
+
+    # 物理外键
+    user_id: int = Field(foreign_key="sys_users.id", description="关联用户ID")
+
+    # 过期时间
+    expires_at: datetime = Field(description="过期时间")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # 关系反向引用
+    user: Optional[SysUser] = Relationship(back_populates="tokens")
 
 class SysRole(SystemModel, table=True):
     """角色表"""
