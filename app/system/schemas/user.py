@@ -2,8 +2,10 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
 
+from app.core.base_schema import BaseSchema
 
-class SysUserBase(BaseModel):
+
+class SysUserBase(BaseSchema):
     username: str
     email: EmailStr
     is_active: bool = True
@@ -32,7 +34,7 @@ class SysUserResponse(SysUserBase):
     created_at: datetime
     updated_at: datetime
     role_ids: Optional[list[int]] = None
-    
+
     class Config:
         from_attributes = True
 
@@ -42,7 +44,4 @@ class UserLogin(BaseModel):
     password: str
 
 
-class TokenResponse(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str = "bearer"
+
