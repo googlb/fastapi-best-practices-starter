@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship, Column
 from sqlalchemy import DateTime
+import sqlalchemy as sa
 from app.db.mixins import BaseModel, SystemModel, FullAuditModel, TimestampMixin
 
 # ===========================================================================
@@ -49,6 +50,10 @@ class SysUser(BaseModel, table=True):
 
     # 关系 (M:N)
     roles: List["SysRole"] = Relationship(back_populates="users", link_model=SysUserRole)
+    tokens: List["SysUserToken"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 # ==================== Token 模型 (新增的) ====================
 class SysUserToken(SQLModel, table=True):
@@ -56,6 +61,7 @@ class SysUserToken(SQLModel, table=True):
     用户 Refresh Token 表
     """
     __tablename__ = "sys_user_tokens"
+    __table_args__ = {"comment": "系统用户Token管理"}
 
     id: Optional[int] = Field(default=None, primary_key=True)
 
@@ -69,8 +75,20 @@ class SysUserToken(SQLModel, table=True):
     user_id: int = Field(foreign_key="sys_users.id", description="关联用户ID")
 
     # 过期时间
-    expires_at: datetime = Field(description="过期时间")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: datetime = Field(
+        # 1. 强制数据库使用 TIMESTAMPTZ (带时区)
+        sa_type=sa.DateTime(timezone=True),
+        description="过期时间"
+    )
+
+    created_at: datetime = Field(
+        # 2. 默认值必须是带时区的 UTC 时间
+        default_factory=lambda: datetime.now(timezone.utc),
+        # 3. 数据库类型也必须匹配
+        sa_type=sa.DateTime(timezone=True),
+        sa_column_kwargs={"server_default": sa.func.now()}, # 可选：让数据库也默认生成时间
+        description="创建时间"
+    )
 
     # 关系反向引用
     user: Optional[SysUser] = Relationship(back_populates="tokens")
