@@ -2,8 +2,10 @@ from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
 
+from app.core.base_schema import BaseSchema
 
-class MenuBase(BaseModel):
+
+class MenuBase(BaseSchema):
     title: str
     name: str
     path: Optional[str] = None
@@ -40,7 +42,7 @@ class MenuResponse(MenuBase):
     created_at: datetime
     updated_at: datetime
     children: Optional[List["MenuResponse"]] = None
-    
+
     class Config:
         from_attributes = True
 
