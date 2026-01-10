@@ -75,7 +75,6 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
         if not user:
             return None
 
-        # 修复点：使用工具函数 verify_password，而不是调用 user 的方法
         if not verify_password(password, user.hashed_password):
             return None
 
