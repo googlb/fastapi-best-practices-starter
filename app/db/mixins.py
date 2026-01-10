@@ -52,7 +52,6 @@ class TimestampMixin(SQLModel):
     )
 
     updated_at: datetime = Field(
-        # 1. 【解决警告】同上
         default_factory=lambda: datetime.now(timezone.utc),
         sa_type=sa.DateTime(timezone=True),
         sa_column_kwargs={

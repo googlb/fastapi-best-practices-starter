@@ -16,7 +16,6 @@ router = APIRouter()
 async def get_role_menus(
     role_id: int,
     session: AsyncSession = Depends(get_session),
-    current_user: SysUser = Depends(get_current_active_user)
 ):
     """获取指定角色拥有的菜单列表"""
     # 检查角色是否存在
@@ -33,7 +32,6 @@ async def set_role_menus(
     role_id: int,
     menu_ids: List[int],
     session: AsyncSession = Depends(get_session),
-    current_user: SysUser = Depends(get_current_active_user)
 ):
     """为指定角色分配菜单权限"""
     # 检查角色是否存在
