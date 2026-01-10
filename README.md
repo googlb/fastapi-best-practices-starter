@@ -41,54 +41,77 @@ Once the application is running, you can access:
 
 ```
 fastapi-best-practices-starter/
+├── alembic/                    # Database migrations
+│   ├── env.py                  # Alembic configuration
+│   └── versions/               # Migration files
 ├── app/                        # Main application directory
 │   ├── __init__.py
-│   ├── main.py                 # Application entry point
 │   ├── api/                    # API aggregation layer
 │   │   └── v1/
-│   │       └── router.py        # Main API router
+│   │       └── router.py       # Main API router
 │   ├── core/                   # Core configurations
+│   │   ├── base_schema.py      # Base schemas
 │   │   ├── config.py           # Application settings
-│   │   ├── security.py         # Security utilities
+│   │   ├── docs.py             # Documentation configurations
 │   │   ├── exceptions.py       # Custom exceptions
-│   │   ├── logging.py          # Logging configuration
-│   │   └── resp.py             # Response formatting
+│   │   ├── resp.py             # Response formatting
+│   │   └── security.py         # Security utilities
 │   ├── db/                     # Database infrastructure
 │   │   ├── base.py             # Model registry for Alembic
 │   │   ├── crud_base.py        # Base CRUD operations
 │   │   └── mixins.py           # Model mixins
 │   ├── dependencies/           # Global dependencies
+│   │   ├── __init__.py
 │   │   ├── auth.py             # Authentication dependencies
-│   │   └── database.py         # Database session management
+│   │   ├── database.py         # Database session management
+│   │   ├── pagination.py       # Pagination dependencies
+│   │   └── permission.py       # Permission dependencies
+│   ├── main.py                 # Application entry point
 │   ├── system/                 # System domain (users, roles, etc.)
 │   │   ├── api/                # API routes
-│   │   │   ├── user.py         # User endpoints
-│   │   │   ├── role.py         # Role endpoints
-│   │   │   ├── menu.py         # Menu endpoints
+│   │   │   ├── auth.py         # Auth endpoints
 │   │   │   ├── dict.py         # Dictionary endpoints
-│   │   │   └── router.py       # Domain router aggregation
+│   │   │   ├── menu.py         # Menu endpoints
+│   │   │   ├── role.py         # Role endpoints
+│   │   │   ├── role_menu.py    # Role-menu relationship endpoints
+│   │   │   ├── router.py       # Domain router aggregation
+│   │   │   └── user.py         # User endpoints
 │   │   ├── crud/               # CRUD operations
-│   │   │   ├── crud_user.py    # User CRUD
+│   │   │   ├── __init__.py
+│   │   │   ├── crud_dict.py    # Dictionary CRUD
+│   │   │   ├── crud_dict_data.py # Dictionary data CRUD
+│   │   │   ├── crud_menu.py    # Menu CRUD
 │   │   │   ├── crud_role.py    # Role CRUD
-│   │   │   └── ...
+│   │   │   ├── crud_role_menu.py # Role-menu relationship CRUD
+│   │   │   └── crud_user.py    # User CRUD
 │   │   ├── models.py           # SQLModel definitions
 │   │   ├── schemas/            # Pydantic models
-│   │   │   ├── user.py         # User schemas
+│   │   │   ├── auth.py         # Auth schemas
+│   │   │   ├── dict.py         # Dictionary schemas
+│   │   │   ├── menu.py         # Menu schemas
 │   │   │   ├── role.py         # Role schemas
-│   │   │   └── ...
+│   │   │   ├── role_menu.py    # Role-menu relationship schemas
+│   │   │   └── user.py         # User schemas
 │   │   └── services/           # Business logic
+│   │       ├── auth_service.py # Authentication services
+│   │       ├── permission_service.py # Permission services
 │   │       └── user_service.py # User services
-│   └── utils/                  # Utility functions
-├── alembic/                    # Database migrations
-│   ├── env.py                  # Alembic configuration
-│   └── versions/               # Migration files
+├── docs/                       # Documentation files
+│   └── screenshots/            # Screenshot files
 ├── scripts/                    # Utility scripts
-│   └── init_admin.py           # Admin initialization
+│   ├── init_admin.py           # Admin initialization
+│   └── init_menus.sql          # Menu initialization SQL
 ├── tests/                      # Test files
 ├── .env.example                # Environment variables template
-├── docker-compose.yml          # Docker configuration
+├── .gitignore
+├── DYNAMIC_MENU_GUIDE.md       # Dynamic menu guide
+├── LICENSE
+├── Makefile
+├── README.md
+├── USER_MODULE_GUIDE.md        # User module guide
+├── alembic.ini
+├── docker-compose.yml
 ├── pyproject.toml              # Project configuration
-├── Makefile                    # Make commands
 └── run.sh                      # Shell script for common tasks
 ```
 
@@ -177,25 +200,8 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 Once the application is running, you can access:
 
-- **Scalar UI**: `http://localhost:8001/scalar` (development) or `http://localhost:8000/scalar` (production)
-- **Swagger UI**: `http://localhost:8001/docs` (development) or `http://localhost:8000/docs` (production)
+- **Scalar UI**: `http://localhost:8001/docs` (development) or `http://localhost:8000/scalar` (production)
 
-## Authentication
-
-The application uses JWT-based authentication. To access protected endpoints:
-
-1. **Login** to get an access token:
-   ```bash
-   curl -X POST "http://localhost:8001/api/v1/sys/users/login" \
-        -H "Content-Type: application/json" \
-        -d '{"username": "admin", "password": "abc123"}'
-   ```
-
-2. **Use the token** in subsequent requests:
-   ```bash
-   curl -X GET "http://localhost:8001/api/v1/sys/users/me" \
-        -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-   ```
 
 ## Development Workflow
 
