@@ -97,7 +97,7 @@ async def update_menu(
     if not menu:
         return Result.error(404, "菜单不存在")
 
-    menu = await crud_menu.update(session, menu, menu_data)
+    menu = await crud_menu.update(session, db_obj=menu, obj_in=menu_data)
     return Result.success(menu)
 
 
