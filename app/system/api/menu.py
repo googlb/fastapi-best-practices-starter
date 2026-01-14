@@ -7,7 +7,17 @@ from app.system.crud.crud_menu import crud_menu
 from app.system.crud.crud_role_menu import crud_role_menu
 from app.core.resp import Result
 from app.dependencies.auth import get_current_user
+from app.system.schemas.menu import MenuResponse, MenuCreate, MenuUpdate
 from app.system.models import SysUser
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel.ext.asyncio.session import AsyncSession
+from app.dependencies.database import get_session as get_db
+from app.system.models import SysMenu, SysRole
+from app.system.crud.crud_menu import crud_menu
+from app.system.crud.crud_role_menu import crud_role_menu
+from app.core.resp import Result
+from app.dependencies.auth import get_current_user
 
 router = APIRouter()
 
@@ -76,20 +86,20 @@ async def get_menu_roles(
     return Result.success(roles)
 
 
-@router.post("/")
+@router.post("", response_model=Result[str])
 async def create_menu(
-    menu_data: dict,
+    menu_in: MenuCreate,
     session: AsyncSession = Depends(get_db)
 ):
     """创建菜单"""
-    menu = await crud_menu.create(session, menu_data)
-    return Result.success(menu)
+    await crud_menu.create(session, obj_in=menu_in)
+    return Result.success("菜单创建成功")
 
 
-@router.put("/{menu_id}")
+@router.put("/{menu_id}", response_model=Result[MenuResponse])
 async def update_menu(
     menu_id: int,
-    menu_data: dict,
+    menu_in: MenuUpdate,
     session: AsyncSession = Depends(get_db)
 ):
     """更新菜单"""
@@ -97,7 +107,7 @@ async def update_menu(
     if not menu:
         return Result.error(404, "菜单不存在")
 
-    menu = await crud_menu.update(session, db_obj=menu, obj_in=menu_data)
+    menu = await crud_menu.update(session, db_obj=menu, obj_in=menu_in)
     return Result.success(menu)
 
 
