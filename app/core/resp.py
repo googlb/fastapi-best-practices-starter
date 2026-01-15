@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar, Optional, List, Any
+from typing import Generic, TypeVar, Optional, List, Any, cast
 from pydantic import BaseModel, Field, ConfigDict
 
 T = TypeVar('T')
@@ -25,8 +25,8 @@ class Result(BaseModel, Generic[T]):
         return self.code == 0
 
     @classmethod
-    def success(cls, data: Optional[T] = None) -> "Result[T]":
-        return cls(code=0, msg="success", data=data)
+    def success(cls, data: Optional[T] = None, msg: str = "success") -> "Result[T]":
+        return cls(code=0, msg=msg, data=data)
 
     @classmethod
     def error(cls, code: int = 500, msg: str = "Error", data: Any = None) -> "Result[T]":
@@ -44,4 +44,4 @@ class Result(BaseModel, Generic[T]):
             size=size,
             pages=pages
         )
-        return cls(code=0, msg="success", data=page_info)
+        return Result[PageInfo[T]](code=0, msg="success", data=page_info)
