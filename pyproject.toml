@@ -47,10 +47,10 @@ dev = [
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
-    "httpx",            # 用于测试 API 请求
+    "httpx", # 用于测试 API 请求
     "mypy",
     "ruff",
-    "pre-commit",       # git commit 钩子
+    "pre-commit", # git commit 钩子
 ]
 
 # ========================================================
@@ -68,20 +68,20 @@ exclude = ["alembic"]       # 忽略迁移文件夹
 
 [tool.ruff.lint]
 select = [
-    "E", "W",   # pycodestyle
-    "F",        # Pyflakes
-    "I",        # isort (自动排序 import)
-    "B",        # flake8-bugbear (发现潜在 bug)
-    "C4",       # flake8-comprehensions (列表推导式优化)
-    "UP",       # pyupgrade (自动升级旧语法，如 Type -> list)
-    "ARG001",   # 未使用的参数
-    "T201",     # print 语句检测 (生产环境禁止 print)
-    "PT",       # flake8-pytest-style (规范测试代码)
-    "SIM",      # flake8-simplify (代码简化)
+    "E", "W", # pycodestyle
+    "F", # Pyflakes
+    "I", # isort (自动排序 import)
+    "B", # flake8-bugbear (发现潜在 bug)
+    "C4", # flake8-comprehensions (列表推导式优化)
+    "UP", # pyupgrade (自动升级旧语法，如 Type -> list)
+    "ARG001", # 未使用的参数
+    "T201", # print 语句检测 (生产环境禁止 print)
+    "PT", # flake8-pytest-style (规范测试代码)
+    "SIM", # flake8-simplify (代码简化)
 ]
 ignore = [
-    "E501",     # 忽略行过长 (由 formatter 自动处理，且有时无法避免)
-    "B008",     # 允许在函数参数中调用 (FastAPI Depends 需要)
+    "E501", # 忽略行过长 (由 formatter 自动处理，且有时无法避免)
+    "B008", # 允许在函数参数中调用 (FastAPI Depends 需要)
 ]
 fixable = ["ALL"]
 
@@ -94,10 +94,13 @@ indent-style = "space"
 python_version = "3.12"
 strict = true
 ignore_missing_imports = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
 exclude = ["venv", ".venv", "alembic"]
 # Pydantic 插件是必须的，否则 SQLModel/Pydantic 会报很多错
 plugins = [
-  "pydantic.mypy"
+    "pydantic.mypy", "sqlalchemy.ext.mypy.plugin"
 ]
 
 [tool.pydantic-mypy]
