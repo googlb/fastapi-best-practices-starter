@@ -6,7 +6,7 @@ from typing import Optional, List
 from app.system.crud.crud_user import crud_user
 from app.system.models import SysUser
 from app.system.schemas.user import SysUserCreate, SysUserUpdate, SysUserResponse
-from app.core.resp import Result
+from app.core.resp import Result, PageInfo
 
 
 class SysUserService:
