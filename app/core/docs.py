@@ -4,7 +4,7 @@ from fastapi.openapi.utils import get_openapi
 from scalar_fastapi import get_scalar_api_reference, Layout, Theme
 try:
     # 1. 正常人的逻辑：直接导入
-    from scalar_fastapi import OpenAPISource
+    from scalar_fastapi import OpenAPISource  # type: ignore
 except ImportError:
     # 2. 我们的逻辑：官方没导出来？我自己去深层目录找！
     from scalar_fastapi.scalar_fastapi import OpenAPISource

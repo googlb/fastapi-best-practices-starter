@@ -13,7 +13,7 @@ async def get_dicts(
     page: int = 1,
     size: int = 20,
     session: AsyncSession = Depends(get_db)
-):
+) -> Result:
     """获取字典列表"""
     dicts, total = await crud_dict.get_page(session, page=page, page_size=size)
     return Result.success_page(dicts, total, page, size)
@@ -23,7 +23,7 @@ async def get_dicts(
 async def get_dict(
     dict_id: int,
     session: AsyncSession = Depends(get_db)
-):
+) -> Result:
     """获取字典详情"""
     dict_item = await crud_dict.get(session, dict_id)
     if not dict_item:
@@ -35,7 +35,7 @@ async def get_dict(
 async def get_dict_by_code(
     dict_code: str,
     session: AsyncSession = Depends(get_db)
-):
+) -> Result:
     """根据编码获取字典"""
     dict_item = await crud_dict.get_by_code(session, dict_code)
     if not dict_item:
@@ -63,7 +63,7 @@ async def get_dict_data(
     page: int = 1,
     size: int = 20,
     session: AsyncSession = Depends(get_db)
-):
+) -> Result:
     """获取字典数据列表"""
     dict_item = await crud_dict.get(session, dict_id)
     if not dict_item:
@@ -77,7 +77,7 @@ async def get_dict_data(
 async def create_dict(
     dict_data: dict,
     session: AsyncSession = Depends(get_db)
-):
+) -> Result:
     """创建字典"""
     dict_item = await crud_dict.create(session, dict_data)
     return Result.success(dict_item)
@@ -88,7 +88,7 @@ async def update_dict(
     dict_id: int,
     dict_data: dict,
     session: AsyncSession = Depends(get_db)
-):
+) -> Result:
     """更新字典"""
     dict_item = await crud_dict.get(session, dict_id)
     if not dict_item:
@@ -102,7 +102,7 @@ async def update_dict(
 async def delete_dict(
     dict_id: int,
     session: AsyncSession = Depends(get_db)
-):
+) -> Result:
     """删除字典"""
     dict_item = await crud_dict.get(session, dict_id)
     if not dict_item:
@@ -117,7 +117,7 @@ async def create_dict_data(
     dict_id: int,
     data_item: dict,
     session: AsyncSession = Depends(get_db)
-):
+) -> Result:
     """创建字典数据"""
     dict_item = await crud_dict.get(session, dict_id)
     if not dict_item:
@@ -133,7 +133,7 @@ async def update_dict_data(
     data_id: int,
     data_item: dict,
     session: AsyncSession = Depends(get_db)
-):
+) -> Result:
     """更新字典数据"""
     dict_data = await crud_dict_data.get(session, data_id)
     if not dict_data:
@@ -147,7 +147,7 @@ async def update_dict_data(
 async def delete_dict_data(
     data_id: int,
     session: AsyncSession = Depends(get_db)
-):
+) -> Result:
     """删除字典数据"""
     dict_data = await crud_dict_data.get(session, data_id)
     if not dict_data:

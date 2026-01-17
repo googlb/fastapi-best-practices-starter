@@ -55,7 +55,7 @@ class SysUserService:
         self,
         session: AsyncSession,
         user_id: int
-    ):
+    ) -> Result[SysUser]:
         """更新最后登录时间"""
         user = await crud_user.get(session, user_id)
         if not user:
@@ -72,7 +72,7 @@ class SysUserService:
         session: AsyncSession,
         username: str,
         password: str
-    ):
+    ) -> Result[SysUser]:
         """验证用户"""
         user = await crud_user.authenticate(session, username, password)
         if not user:
@@ -95,7 +95,7 @@ class SysUserService:
         page: int,
         size: int,
         current_user: SysUser,
-    ):
+    ) -> Result[PageInfo[SysUserResponse]]:
         if not current_user.is_superuser:
             return Result.error(403, "权限不足")
 

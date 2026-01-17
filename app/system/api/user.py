@@ -21,12 +21,13 @@ router = APIRouter()
 @router.get("/me", summary="获取当前用户信息",response_model=Result[SysUserResponse])
 async def get_current_user_info(
     current_user: SysUser = Depends(get_current_user),
-):
+) -> Result[SysUserResponse]:
     """
     获取当前登录用户的详细信息
     无需特定权限标识，登录即可访问
     """
-    return Result.success(current_user)
+    user_response = SysUserResponse.model_validate(current_user)
+    return Result.success(user_response)
 
 
 @router.get(
@@ -40,7 +41,7 @@ async def get_user_list(
     session: AsyncSession = Depends(get_session),
     pagination: PageDep,
     current_user: SysUser = Depends(get_current_user),
-):
+) -> Result[PageInfo[SysUserResponse]]:
     """
     分页获取用户列表
     需要权限: system:user:list
@@ -65,7 +66,7 @@ async def create_user(
     *,
     session: AsyncSession = Depends(get_session),
     user_in: SysUserCreate,
-):
+) -> Result[SysUserResponse]:
     """
     创建新用户
     需要权限: system:user:add
@@ -73,15 +74,19 @@ async def create_user(
     # 调用 Service 层 (注意：Service 层需要修复 keyword argument 问题)
     result = await sys_user_service.create_user(session, user_in)
 
-    if not result.success:
-        return result
+    if not result.is_success:
+        # 直接返回错误结果
+        return Result.error(result.code, result.msg, result.data)
 
-    return result
+    # 将 SysUser 转换为 SysUserResponse
+    user_response = SysUserResponse.model_validate(result.data)
+    return Result.success(user_response)
 
 
 @router.put(
     "/{user_id}",
     summary="更新用户",
+    response_model=Result[SysUserResponse],
     dependencies=[Depends(Perms("system:user:update"))]
 )
 async def update_user(
@@ -89,7 +94,7 @@ async def update_user(
     session: AsyncSession = Depends(get_session),
     user_id: int,
     user_in: SysUserUpdate,
-):
+) -> Result[SysUserResponse]:
     """
     更新用户信息
     需要权限: system:user:update
@@ -112,22 +117,26 @@ async def update_user(
     # 3. 执行更新
     result = await sys_user_service.update_user(session, user_id, user_in)
 
-    if not result.success:
-        return result
+    if not result.is_success:
+        # 直接返回错误结果
+        return Result.error(result.code, result.msg, result.data)
 
-    return result
+    # 将 SysUser 转换为 SysUserResponse
+    user_response = SysUserResponse.model_validate(result.data)
+    return Result.success(user_response)
 
 
 @router.get(
     "/{user_id}",
     summary="获取用户详情",
+    response_model=Result[SysUserResponse],
     dependencies=[Depends(Perms("system:user:query"))]
 )
 async def get_user(
     *,
     session: AsyncSession = Depends(get_session),
     user_id: int,
-):
+) -> Result[SysUserResponse]:
     """
     根据ID获取用户详情
     需要权限: system:user:query
@@ -136,12 +145,14 @@ async def get_user(
     if not user:
         return Result.error(404, "用户不存在")
 
-    return Result.success(user)
+    user_response = SysUserResponse.model_validate(user)
+    return Result.success(user_response)
 
 
 @router.delete(
     "/{user_id}",
     summary="删除用户",
+    response_model=Result,
     dependencies=[Depends(Perms("system:user:delete"))]
 )
 async def delete_user(
@@ -149,7 +160,7 @@ async def delete_user(
     session: AsyncSession = Depends(get_session),
     user_id: int,
     current_user: SysUser = Depends(get_current_user)
-):
+) -> Result[str]:
     """
     删除用户
     需要权限: system:user:delete
@@ -167,4 +178,4 @@ async def delete_user(
 
     # 4. 执行删除
     await crud_user.delete(session, id=user_id)
-    return Result.success(msg="用户删除成功")
+    return Result.success("用户删除成功")

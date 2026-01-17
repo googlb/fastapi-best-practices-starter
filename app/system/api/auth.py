@@ -21,7 +21,7 @@ router = APIRouter()
 async def login(
     credentials: UserLogin,
     session: AsyncSession = Depends(get_session),
-):
+) -> Result[TokenSchema]:
     """
     用户登录
     """
@@ -48,7 +48,7 @@ async def login(
 async def refresh_token(
     request_data: RefreshTokenRequest,
     session: AsyncSession = Depends(get_session),
-):
+) -> Result[TokenSchema]:
     """
     刷新 Token (轮换模式)
     """
@@ -64,7 +64,7 @@ async def refresh_token(
 async def logout(
     request_data: RefreshTokenRequest,
     session: AsyncSession = Depends(get_session),
-):
+) -> Result[str]:
     """
     退出登录
     """

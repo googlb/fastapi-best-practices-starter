@@ -17,7 +17,7 @@ async def get_roles(
     size: int = 20,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
-):
+) -> Result:
     """获取角色列表"""
     roles, total = await crud_role.get_page(session, page=page, page_size=size)
     return Result.success_page(roles, total, page, size)
@@ -28,7 +28,7 @@ async def get_role(
     role_id: int,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
-):
+) -> Result:
     """获取角色详情"""
     role = await crud_role.get(session, role_id)
     if not role:
@@ -41,7 +41,7 @@ async def create_role(
     role_in: RoleCreate,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
-):
+) -> Result:
     """创建角色"""
     # 检查角色编码是否已存在
     role = await crud_role.get_by_code(session, role_in.code)
@@ -58,7 +58,7 @@ async def update_role(
     role_in: RoleUpdate,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
-):
+) -> Result:
     """更新角色"""
     role = await crud_role.get(session, role_id)
     if not role:
@@ -79,7 +79,7 @@ async def delete_role(
     role_id: int,
     session: AsyncSession = Depends(get_session),
     current_user: SysUser = Depends(get_current_active_user)
-):
+) -> Result:
     """删除角色"""
     role = await crud_role.get(session, role_id)
     if not role:
