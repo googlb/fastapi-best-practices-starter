@@ -77,7 +77,7 @@ class SysUserToken(SQLModel, table=True):
     # 过期时间
     expires_at: datetime = Field(
         # 1. 强制数据库使用 TIMESTAMPTZ (带时区)
-        sa_type=sa.DateTime(timezone=True),
+        sa_column=sa.Column(sa.DateTime(timezone=True)),
         description="过期时间"
     )
 
@@ -85,8 +85,10 @@ class SysUserToken(SQLModel, table=True):
         # 2. 默认值必须是带时区的 UTC 时间
         default_factory=lambda: datetime.now(timezone.utc),
         # 3. 数据库类型也必须匹配
-        sa_type=sa.DateTime(timezone=True),
-        sa_column_kwargs={"server_default": sa.func.now()}, # 可选：让数据库也默认生成时间
+        sa_column=sa.Column(
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now()
+        ),
         description="创建时间"
     )
 
@@ -145,7 +147,7 @@ class SysDict(SystemModel, table=True):
 
     # 关系
     data: List["SysDictData"] = Relationship(
-        back_populates="dict",
+        back_populates="sys_dict",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
 
@@ -163,4 +165,4 @@ class SysDictData(SystemModel, table=True):
     class_name: Optional[str] = Field(default=None, max_length=50, description="样式属性")
 
     # 关系
-    dict: SysDict = Relationship(back_populates="data")
+    sys_dict: SysDict = Relationship(back_populates="data")

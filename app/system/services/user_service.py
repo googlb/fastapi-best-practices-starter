@@ -1,7 +1,6 @@
 from sqlalchemy.orm import selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
 from datetime import datetime, timezone
-from typing import Optional, List
 
 from app.system.crud.crud_user import crud_user
 from app.system.models import SysUser
@@ -10,7 +9,7 @@ from app.core.resp import Result, PageInfo
 
 
 class SysUserService:
-    async def create_user(self, session: AsyncSession, obj_in: SysUserCreate)-> Result[SysUser]:
+    async def create_user(self, session: AsyncSession, obj_in: SysUserCreate) -> Result[SysUser]:
         """创建用户"""
         # 检查用户名是否已存在
         user = await crud_user.get_by_username(session, obj_in.username)
@@ -27,10 +26,10 @@ class SysUserService:
         return Result.success(user)
 
     async def update_user(
-        self,
-        session: AsyncSession,
-        user_id: int,
-        obj_in: SysUserUpdate
+            self,
+            session: AsyncSession,
+            user_id: int,
+            obj_in: SysUserUpdate
     ) -> Result[SysUser]:
         """更新用户"""
         # 1. 查找是否存在
@@ -52,26 +51,27 @@ class SysUserService:
         return Result.success(user)
 
     async def update_last_login(
-        self,
-        session: AsyncSession,
-        user_id: int
+            self,
+            session: AsyncSession,
+            user_id: int
     ) -> Result[SysUser]:
         """更新最后登录时间"""
         user = await crud_user.get(session, user_id)
         if not user:
             return Result.error(404, "用户不存在")
 
-        user.last_login_at = datetime.utcnow()
+        # 使用带时区的 UTC 时间
+        user.last_login_at = datetime.now(timezone.utc)
         session.add(user)
         await session.commit()
         await session.refresh(user)
         return Result.success(user)
 
     async def authenticate_user(
-        self,
-        session: AsyncSession,
-        username: str,
-        password: str
+            self,
+            session: AsyncSession,
+            username: str,
+            password: str
     ) -> Result[SysUser]:
         """验证用户"""
         user = await crud_user.authenticate(session, username, password)
@@ -81,7 +81,6 @@ class SysUserService:
         if not user.is_active:
             return Result.error(403, "用户已被禁用")
 
-        # 更新最后登录时间
         user.last_login_at = datetime.now(timezone.utc)
         session.add(user)
         await session.commit()
@@ -90,27 +89,26 @@ class SysUserService:
         return Result.success(user)
 
     async def get_user_page(
-        self,
-        session: AsyncSession,
-        page: int,
-        size: int,
-        current_user: SysUser,
+            self,
+            session: AsyncSession,
+            page: int,
+            size: int,
+            current_user: SysUser,
     ) -> Result[PageInfo[SysUserResponse]]:
         if not current_user.is_superuser:
             return Result.error(403, "权限不足")
 
-        # 传入 selectinload，解决 MissingGreenlet 错误
         users, total = await crud_user.get_page(
             session,
             page=page,
             page_size=size,
-            options=[selectinload(SysUser.roles)]
+            options=[selectinload(SysUser.roles)]  # type: ignore
         )
 
-        # 后续逻辑保持不变 (手动提取 role_ids)
         user_responses = []
         for user in users:
-            role_ids = [role.id for role in user.roles]
+            # 过滤掉 ID 为 None 的情况，确保类型安全 (List[int])
+            role_ids = [role.id for role in user.roles if role.id is not None]
 
             # 使用 model_validate 转换
             # (确保 SysUserResponse 允许 extra fields 或者手动构建 dict)
