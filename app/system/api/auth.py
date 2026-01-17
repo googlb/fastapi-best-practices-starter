@@ -31,9 +31,11 @@ async def login(
     )
 
     if not auth_result.is_success:
-        return auth_result  # 返回 401 或 403 错误 Result
+        return Result.error(auth_result.code, auth_result.msg)
 
     user = auth_result.data
+    if not user:
+        return Result.error(500, "用户数据异常")
 
     # 2. 生成令牌并持久化 (使用 Auth Service)
     return await auth_service.login(session, user)

@@ -29,6 +29,9 @@ class AuthService:
         )
 
         # 3. 持久化 Refresh Token 到数据库
+        if user.id is None:
+            return Result.error(401, "用户ID无效")
+        
         db_token = SysUserToken(
             user_id=user.id,
             token=refresh_token,
@@ -42,7 +45,7 @@ class AuthService:
         return Result.success(TokenSchema(
             access_token=access_token,
             refresh_token=refresh_token,
-            expires_in=access_token_expires.total_seconds()
+            expires_in=int(access_token_expires.total_seconds())
         ))
 
     async def refresh_token(self, session: AsyncSession, token_in: str) -> Result[TokenSchema]:
@@ -87,7 +90,7 @@ class AuthService:
 
         return await self.login(session, user)
 
-    async def logout(self, session: AsyncSession, token_in: str) -> Result:
+    async def logout(self, session: AsyncSession, token_in: str) -> Result[str]:
         """
         退出登录：将 Refresh Token 标记为已使用或删除
         """
@@ -101,6 +104,6 @@ class AuthService:
             session.add(db_token)
             await session.commit()
 
-        return Result.success(msg="退出成功")
+        return Result.success(data="退出成功")
 
 auth_service = AuthService()

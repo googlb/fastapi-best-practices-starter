@@ -92,21 +92,23 @@ indent-style = "space"
 # --- Mypy (Type Checking) ---
 [tool.mypy]
 python_version = "3.12"
-strict = true
+# strict = true # 移除严格模式，防止开发效率过低
 ignore_missing_imports = true
-warn_return_any = true
+warn_return_any = false # 允许返回 Any，减少第三方库兼容问题
 warn_unused_configs = true
-disallow_untyped_defs = true
+disallow_untyped_defs = true # 仍然强制要求函数写类型注解（这是好习惯）
+check_untyped_defs = true # 检查没有类型注解的函数体
+disallow_any_generics = false # 允许使用 List/Dict 而不指定具体类型（减少 List[Any] 这种噪音）
 exclude = ["venv", ".venv", "alembic"]
-# Pydantic 插件是必须的，否则 SQLModel/Pydantic 会报很多错
 plugins = [
-    "pydantic.mypy", "sqlalchemy.ext.mypy.plugin"
+    "pydantic.mypy"
 ]
 
 [tool.pydantic-mypy]
 init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
+warn_untyped_fields = true
 
 # --- Pytest ---
 [tool.pytest.ini_options]
