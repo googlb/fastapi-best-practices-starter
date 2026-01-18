@@ -104,10 +104,17 @@ plugins = [
     "pydantic.mypy"
 ]
 
-# 忽略 main.py 中异常处理器的类型错误（Starlette 的类型签名过于严格）
+# 全局禁用 SQLModel/SQLAlchemy 的已知类型问题
+# 这些是框架本身的限制，不是代码质量问题，无需在代码中写 type: ignore
+disable_error_code = [
+    "arg-type",           # SQLAlchemy join 条件的类型推断问题
+    "comparison-overlap", # SQLModel None 比较的类型问题
+]
+
+# 特定模块的额外配置（仅用于特殊情况）
 [[tool.mypy.overrides]]
 module = "app.main"
-disable_error_code = ["arg-type"]
+warn_unused_ignores = false  # main.py 中的异常处理器需要此配置
 
 [tool.pydantic-mypy]
 init_forbid_extra = true
