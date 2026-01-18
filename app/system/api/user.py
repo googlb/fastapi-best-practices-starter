@@ -14,6 +14,10 @@ from app.system.crud.crud_user import crud_user
 from app.system.services.user_service import sys_user_service
 from app.system.models import SysUser
 from app.core.resp import Result, PageInfo
+from app.core.exceptions import (
+    NotFoundException,
+    PermissionException,
+)
 
 router = APIRouter()
 
@@ -45,15 +49,16 @@ async def get_user_list(
     """
     分页获取用户列表
     需要权限: system:user:list
+    
+    业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
-    # Service 层已优化，支持预加载 roles，不会报错 MissingGreenlet
-    result = await sys_user_service.get_user_page(
+    page_info = await sys_user_service.get_user_page(
         session=session,
         page=pagination.page,
         size=pagination.size,
         current_user=current_user,
     )
-    return result
+    return Result.success(page_info)
 
 
 @router.post(
@@ -70,16 +75,11 @@ async def create_user(
     """
     创建新用户
     需要权限: system:user:add
+    
+    业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
-    # 调用 Service 层 (注意：Service 层需要修复 keyword argument 问题)
-    result = await sys_user_service.create_user(session, user_in)
-
-    if not result.is_success:
-        # 直接返回错误结果
-        return Result.error(result.code, result.msg, result.data)
-
-    # 将 SysUser 转换为 SysUserResponse
-    user_response = SysUserResponse.model_validate(result.data)
+    user = await sys_user_service.create_user(session, user_in)
+    user_response = SysUserResponse.model_validate(user)
     return Result.success(user_response)
 
 
@@ -98,31 +98,27 @@ async def update_user(
     """
     更新用户信息
     需要权限: system:user:update
+    
+    业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
     # 1. 查出目标用户
     target_user = await crud_user.get(session, user_id)
     if not target_user:
-        return Result.error(404, "用户不存在")
+        raise NotFoundException("用户不存在")
 
     # 2. 🛡️ 业务保护逻辑：保护 Admin 账号
     if target_user.username == "admin":
         # 禁止禁用 Admin
         if user_in.is_active is False:
-            return Result.error(403, "系统超级管理员(admin)不允许被禁用")
+            raise PermissionException("系统超级管理员(admin)不允许被禁用")
 
         # 禁止取消 Admin 的超级管理员身份
         if user_in.is_superuser is False:
-            return Result.error(403, "无法取消系统管理员的超级权限")
+            raise PermissionException("无法取消系统管理员的超级权限")
 
     # 3. 执行更新
-    result = await sys_user_service.update_user(session, user_id, user_in)
-
-    if not result.is_success:
-        # 直接返回错误结果
-        return Result.error(result.code, result.msg, result.data)
-
-    # 将 SysUser 转换为 SysUserResponse
-    user_response = SysUserResponse.model_validate(result.data)
+    user = await sys_user_service.update_user(session, user_id, user_in)
+    user_response = SysUserResponse.model_validate(user)
     return Result.success(user_response)
 
 
@@ -140,10 +136,12 @@ async def get_user(
     """
     根据ID获取用户详情
     需要权限: system:user:query
+    
+    业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
     user = await crud_user.get(session, user_id)
     if not user:
-        return Result.error(404, "用户不存在")
+        raise NotFoundException("用户不存在")
 
     user_response = SysUserResponse.model_validate(user)
     return Result.success(user_response)
@@ -164,17 +162,19 @@ async def delete_user(
     """
     删除用户
     需要权限: system:user:delete
+    
+    业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
     # 1. 查出目标用户
     user = await crud_user.get(session, user_id)
     if not user:
-        return Result.error(404, "用户不存在")
+        raise NotFoundException("用户不存在")
 
     if user.username == "admin":
-        return Result.error(403, "系统超级管理员(admin)不允许被删除")
+        raise PermissionException("系统超级管理员(admin)不允许被删除")
 
     if user.id == current_user.id:
-        return Result.error(403, "无法删除当前登录账号")
+        raise PermissionException("无法删除当前登录账号")
 
     # 4. 执行删除
     await crud_user.delete(session, id=user_id)
