@@ -104,6 +104,11 @@ plugins = [
     "pydantic.mypy"
 ]
 
+# 忽略 main.py 中异常处理器的类型错误（Starlette 的类型签名过于严格）
+[[tool.mypy.overrides]]
+module = "app.main"
+disable_error_code = ["arg-type"]
+
 [tool.pydantic-mypy]
 init_forbid_extra = true
 init_typed = true

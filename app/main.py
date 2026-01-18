@@ -1,8 +1,18 @@
 # app/main.py
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
 from app.api.v1.router import api_v1_router
 from app.core.config import settings
-from app.core.docs import register_docs  # 导入刚才封装的函数
+from app.core.docs import register_docs
+from app.core.exceptions import (
+    BusinessException,
+    business_exception_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
+
 
 def create_app() -> FastAPI:
     """
@@ -17,10 +27,15 @@ def create_app() -> FastAPI:
         openapi_url="/openapi.json" # 保留默认的全量 JSON 源
     )
 
-    # 1. 注册业务路由
+    # 1. 注册全局异常处理器
+    app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)
+    app.add_exception_handler(BusinessException, business_exception_handler)
+
+    # 2. 注册业务路由
     app.include_router(api_v1_router, prefix="/api/v1")
 
-    # 2. 注册文档路由 (Scalar)
+    # 3. 注册文档路由 (Scalar)
     # 必须在 include_router 之后注册，否则找不到路由来生成文档
     register_docs(app)
 
