@@ -12,6 +12,7 @@ from app.system.schemas.auth import UserLogin, TokenSchema, RefreshTokenRequest
 
 router = APIRouter()
 
+
 @router.post(
     "/login",
     summary="用户登录",
@@ -24,21 +25,19 @@ async def login(
 ) -> Result[TokenSchema]:
     """
     用户登录
+    
+    业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
+    这里只需要处理正常的业务流程。
     """
     # 1. 校验账号密码 (使用 User Service)
-    auth_result = await sys_user_service.authenticate_user(
+    user = await sys_user_service.authenticate_user(
         session, credentials.username, credentials.password
     )
 
-    if not auth_result.is_success:
-        return Result.error(auth_result.code, auth_result.msg)
-
-    user = auth_result.data
-    if not user:
-        return Result.error(500, "用户数据异常")
-
     # 2. 生成令牌并持久化 (使用 Auth Service)
-    return await auth_service.login(session, user)
+    token = await auth_service.login(session, user)
+    
+    return Result.success(token)
 
 
 @router.post(
@@ -53,8 +52,11 @@ async def refresh_token(
 ) -> Result[TokenSchema]:
     """
     刷新 Token (轮换模式)
+    
+    业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
-    return await auth_service.refresh_token(session, request_data.refresh_token)
+    token = await auth_service.refresh_token(session, request_data.refresh_token)
+    return Result.success(token)
 
 
 @router.post(
@@ -69,5 +71,9 @@ async def logout(
 ) -> Result[str]:
     """
     退出登录
+    
+    业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
-    return await auth_service.logout(session, request_data.refresh_token)
+    message = await auth_service.logout(session, request_data.refresh_token)
+    return Result.success(message)
+
