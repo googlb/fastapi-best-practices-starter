@@ -1,5 +1,5 @@
 from typing import Optional, List
-from sqlmodel import select
+from sqlmodel import select, col
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.system.models import SysMenu, SysUser, SysRoleMenu
 from app.system.schemas.menu import MenuCreate, MenuUpdate, MenuResponse
@@ -50,14 +50,14 @@ class CRUDMenu(CRUDBase[SysMenu, MenuCreate, MenuUpdate]):
         if not role_ids:
             return []
         
-        allowed_menu_ids_res = await session.exec(select(SysRoleMenu.menu_id).where(SysRoleMenu.role_id.in_(role_ids)))
-        allowed_ids = {i[0] for i in allowed_menu_ids_res}
+        allowed_menu_ids_res = await session.exec(select(SysRoleMenu.menu_id).where(col(SysRoleMenu.role_id).in_(role_ids)))
+        allowed_ids = {i for i in allowed_menu_ids_res}
 
         # 3. 确定最终菜单集：包含所有允许的菜单及其所有父级
         final_menus_to_include_ids = set()
         for menu in all_menus_list:
             if menu.id in allowed_ids:
-                curr = menu
+                curr: Optional[SysMenu] = menu
                 while curr:
                     final_menus_to_include_ids.add(curr.id)
                     curr = all_menus_map.get(curr.parent_id)
@@ -96,7 +96,7 @@ class CRUDMenu(CRUDBase[SysMenu, MenuCreate, MenuUpdate]):
         """获取子菜单"""
         statement = select(SysMenu).where(SysMenu.parent_id == parent_id)
         result = await session.exec(statement)
-        return result.all()
+        return list(result.all())
 
 
 
