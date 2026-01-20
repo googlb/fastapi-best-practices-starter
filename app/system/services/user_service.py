@@ -18,14 +18,14 @@ class SysUserService:
     async def create_user(self, session: AsyncSession, obj_in: SysUserCreate) -> SysUser:
         """
         创建用户
-        
+
         Args:
             session: 数据库会话
             obj_in: 用户创建数据
-            
+
         Returns:
             SysUser: 创建的用户对象
-            
+
         Raises:
             ValidationException: 用户名或邮箱已存在时抛出
         """
@@ -51,15 +51,15 @@ class SysUserService:
     ) -> SysUser:
         """
         更新用户
-        
+
         Args:
             session: 数据库会话
             user_id: 用户 ID
             obj_in: 用户更新数据
-            
+
         Returns:
             SysUser: 更新后的用户对象
-            
+
         Raises:
             NotFoundException: 用户不存在时抛出
             ValidationException: 邮箱已存在时抛出
@@ -89,14 +89,14 @@ class SysUserService:
     ) -> SysUser:
         """
         更新最后登录时间
-        
+
         Args:
             session: 数据库会话
             user_id: 用户 ID
-            
+
         Returns:
             SysUser: 更新后的用户对象
-            
+
         Raises:
             NotFoundException: 用户不存在时抛出
         """
@@ -119,15 +119,15 @@ class SysUserService:
     ) -> SysUser:
         """
         验证用户
-        
+
         Args:
             session: 数据库会话
             username: 用户名
             password: 密码
-            
+
         Returns:
             SysUser: 认证成功的用户对象
-            
+
         Raises:
             AuthenticationException: 用户名或密码错误、用户被禁用时抛出
         """
@@ -154,16 +154,16 @@ class SysUserService:
     ) -> PageInfo[SysUserResponse]:
         """
         获取用户分页列表
-        
+
         Args:
             session: 数据库会话
             page: 页码
             size: 每页数量
             current_user: 当前登录用户
-            
+
         Returns:
             PageInfo[SysUserResponse]: 用户分页数据
-            
+
         Raises:
             PermissionException: 非超级管理员访问时抛出
         """
@@ -191,7 +191,7 @@ class SysUserService:
 
         # 计算总页数
         pages = (total + size - 1) // size if size > 0 else 0
-        
+
         return PageInfo[SysUserResponse](
             items=user_responses,
             total=total,
@@ -202,4 +202,3 @@ class SysUserService:
 
 
 sys_user_service = SysUserService()
-
