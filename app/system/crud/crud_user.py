@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Any
 from sqlmodel import select, col
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -43,10 +43,13 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
         session: AsyncSession,
         *,
         db_obj: SysUser,
-        obj_in: SysUserUpdate
+        obj_in: SysUserUpdate | dict[str, Any]
     ) -> SysUser:
-        # 这里的实现非常棒，完美利用了 Pydantic 的 exclude_unset
-        update_data = obj_in.model_dump(exclude_unset=True)
+        if isinstance(obj_in, dict):
+            update_data = obj_in
+        else:
+            # 这里的实现非常棒，完美利用了 Pydantic 的 exclude_unset
+            update_data = obj_in.model_dump(exclude_unset=True)
 
         if "password" in update_data:
             password = update_data.pop("password")
@@ -66,7 +69,7 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
             .distinct()  # 去重，防止一个用户有多个角色时被查出来多次
         )
         result = await session.exec(statement)
-        return result.all()
+        return list(result.all())
 
     async def authenticate(
         self, session: AsyncSession, username: str, password: str
