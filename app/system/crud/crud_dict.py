@@ -11,7 +11,7 @@ class CRUDDict(CRUDBase[SysDict, DictCreate, DictUpdate]):
         """根据字典编码获取字典"""
         statement = select(SysDict).where(SysDict.code == code)
         result = await session.exec(statement)
-        return result.first_or_none()
+        return result.first()
 
 
 crud_dict = CRUDDict(SysDict)
