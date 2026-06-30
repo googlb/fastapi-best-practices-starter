@@ -8,6 +8,7 @@ from app.dependencies.pagination import PageDep
 from app.system.crud.crud_role import crud_role
 from app.system.models import SysUser
 from app.system.schemas.role import RoleCreate, RoleUpdate, RoleResponse
+from app.system.services.role_service import sys_role_service
 
 router = APIRouter()
 
@@ -45,12 +46,7 @@ async def create_role(
     current_user: SysUser = Depends(get_current_active_user)
 ) -> Result[RoleResponse]:
     """创建角色"""
-    # 检查角色编码是否已存在
-    role = await crud_role.get_by_code(session, role_in.code)
-    if role:
-        return Result.error(400, "角色编码已存在")
-
-    new_role = await crud_role.create(session, obj_in=role_in)
+    new_role = await sys_role_service.create_role(session, role_in)
     return Result.success(new_role)
 
 
@@ -62,16 +58,7 @@ async def update_role(
     current_user: SysUser = Depends(get_current_active_user)
 ) -> Result[RoleResponse]:
     """更新角色"""
-    role = await crud_role.get(session, role_id)
-    if not role:
-        return Result.error(404, "角色不存在")
-
-    if role_in.code and role_in.code != role.code:
-        existing_role = await crud_role.get_by_code(session, role_in.code)
-        if existing_role:
-            return Result.error(400, "角色编码已存在")
-
-    updated_role = await crud_role.update(session, db_obj=role, obj_in=role_in)
+    updated_role = await sys_role_service.update_role(session, role_id, role_in)
     return Result.success(updated_role)
 
 
@@ -82,9 +69,5 @@ async def delete_role(
     current_user: SysUser = Depends(get_current_active_user)
 ) -> Result[str]:
     """删除角色"""
-    role = await crud_role.get(session, role_id)
-    if not role:
-        return Result.error(404, "角色不存在")
-
-    await crud_role.delete(session, id=role_id)
+    await sys_role_service.delete_role(session, role_id)
     return Result.success("角色删除成功")

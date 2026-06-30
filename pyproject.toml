@@ -23,7 +23,7 @@ dependencies = [
     "sqlmodel", # ORM
     "asyncpg", # PostgreSQL 异步驱动
     "alembic", # 数据库迁移
-    "fastapi-users[sqlalchemy]", # 用户认证体系
+
     "pydantic-settings", # 配置管理
     "passlib[bcrypt]", # 密码哈希
     "pyjwt", # JWT 处理
