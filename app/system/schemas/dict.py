@@ -1,12 +1,12 @@
-from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
+
+from pydantic import BaseModel
 
 
 class DictBase(BaseModel):
     name: str
     code: str
-    description: Optional[str] = None
+    description: str | None = None
     status: int = 1
 
 
@@ -15,17 +15,17 @@ class DictCreate(DictBase):
 
 
 class DictUpdate(BaseModel):
-    name: Optional[str] = None
-    code: Optional[str] = None
-    description: Optional[str] = None
-    status: Optional[int] = None
+    name: str | None = None
+    code: str | None = None
+    description: str | None = None
+    status: int | None = None
 
 
 class DictResponse(DictBase):
     id: int
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -44,18 +44,18 @@ class DictDataCreate(DictDataBase):
 
 
 class DictDataUpdate(BaseModel):
-    dict_id: Optional[int] = None
-    label: Optional[str] = None
-    value: Optional[str] = None
-    sort: Optional[int] = None
-    is_default: Optional[bool] = None
-    status: Optional[int] = None
+    dict_id: int | None = None
+    label: str | None = None
+    value: str | None = None
+    sort: int | None = None
+    is_default: bool | None = None
+    status: int | None = None
 
 
 class DictDataResponse(DictDataBase):
     id: int
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
