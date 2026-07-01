@@ -1,21 +1,24 @@
 # app/system/services/permission_service.py
-from typing import List
+
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-from app.system.models import SysUser, SysUserRole, SysRoleMenu, SysMenu
+
+from app.system.models import SysMenu, SysRoleMenu, SysUserRole
 
 
 class PermissionService:
-    async def get_user_permissions(self, session: AsyncSession, user_id: int) -> List[str]:
+    async def get_user_permissions(
+        self, session: AsyncSession, user_id: int
+    ) -> list[str]:
         """
         获取用户的所有权限标识 (去重)
-        
+
         SQL逻辑: User -> UserRole -> Role -> RoleMenu -> Menu
-        
+
         Args:
             session: 数据库会话
             user_id: 用户 ID
-            
+
         Returns:
             List[str]: 用户的权限标识列表（已去重）
         """
@@ -37,4 +40,3 @@ class PermissionService:
 
 
 permission_service = PermissionService()
-

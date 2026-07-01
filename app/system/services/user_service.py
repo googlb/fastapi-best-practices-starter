@@ -1,21 +1,24 @@
+from datetime import UTC, datetime
+
 from sqlalchemy.orm import selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
-from datetime import datetime, timezone
 
+from app.core.exceptions import (
+    AuthenticationException,
+    NotFoundException,
+    PermissionException,
+    ValidationException,
+)
+from app.core.resp import PageInfo
 from app.system.crud.crud_user import crud_user
 from app.system.models import SysUser
-from app.system.schemas.user import SysUserCreate, SysUserUpdate, SysUserResponse
-from app.core.resp import PageInfo
-from app.core.exceptions import (
-    ValidationException,
-    NotFoundException,
-    AuthenticationException,
-    PermissionException,
-)
+from app.system.schemas.user import SysUserCreate, SysUserResponse, SysUserUpdate
 
 
 class SysUserService:
-    async def create_user(self, session: AsyncSession, obj_in: SysUserCreate) -> SysUser:
+    async def create_user(
+        self, session: AsyncSession, obj_in: SysUserCreate
+    ) -> SysUser:
         """
         创建用户
 
@@ -44,10 +47,7 @@ class SysUserService:
         return user
 
     async def update_user(
-            self,
-            session: AsyncSession,
-            user_id: int,
-            obj_in: SysUserUpdate
+        self, session: AsyncSession, user_id: int, obj_in: SysUserUpdate
     ) -> SysUser:
         """
         更新用户
@@ -74,19 +74,11 @@ class SysUserService:
             if await crud_user.get_by_email(session, obj_in.email):
                 raise ValidationException("邮箱已存在")
 
-        user = await crud_user.update(
-            session,
-            db_obj=db_obj,
-            obj_in=obj_in
-        )
+        user = await crud_user.update(session, db_obj=db_obj, obj_in=obj_in)
 
         return user
 
-    async def update_last_login(
-            self,
-            session: AsyncSession,
-            user_id: int
-    ) -> SysUser:
+    async def update_last_login(self, session: AsyncSession, user_id: int) -> SysUser:
         """
         更新最后登录时间
 
@@ -105,17 +97,14 @@ class SysUserService:
             raise NotFoundException("用户不存在")
 
         # 使用带时区的 UTC 时间
-        user.last_login_at = datetime.now(timezone.utc)
+        user.last_login_at = datetime.now(UTC)
         session.add(user)
         await session.commit()
         await session.refresh(user)
         return user
 
     async def authenticate_user(
-            self,
-            session: AsyncSession,
-            username: str,
-            password: str
+        self, session: AsyncSession, username: str, password: str
     ) -> SysUser:
         """
         验证用户
@@ -138,7 +127,7 @@ class SysUserService:
         if not user.is_active:
             raise AuthenticationException("用户已被禁用")
 
-        user.last_login_at = datetime.now(timezone.utc)
+        user.last_login_at = datetime.now(UTC)
         session.add(user)
         await session.commit()
         await session.refresh(user)
@@ -146,11 +135,11 @@ class SysUserService:
         return user
 
     async def get_user_page(
-            self,
-            session: AsyncSession,
-            page: int,
-            size: int,
-            current_user: SysUser,
+        self,
+        session: AsyncSession,
+        page: int,
+        size: int,
+        current_user: SysUser,
     ) -> PageInfo[SysUserResponse]:
         """
         获取用户分页列表
@@ -174,7 +163,7 @@ class SysUserService:
             session,
             page=page,
             page_size=size,
-            options=[selectinload(SysUser.roles)]  # type: ignore
+            options=[selectinload(SysUser.roles)],  # type: ignore
         )
 
         user_responses = []
@@ -193,11 +182,7 @@ class SysUserService:
         pages = (total + size - 1) // size if size > 0 else 0
 
         return PageInfo[SysUserResponse](
-            items=user_responses,
-            total=total,
-            page=page,
-            size=size,
-            pages=pages
+            items=user_responses, total=total, page=page, size=size, pages=pages
         )
 
 

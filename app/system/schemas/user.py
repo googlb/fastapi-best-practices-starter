@@ -1,6 +1,6 @@
-from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional
+
+from pydantic import BaseModel, EmailStr
 
 from app.core.base_schema import BaseSchema
 
@@ -10,30 +10,30 @@ class SysUserBase(BaseSchema):
     email: EmailStr
     is_active: bool = True
     is_superuser: bool = False
-    remark: Optional[str] = None
+    remark: str | None = None
 
 
 class SysUserCreate(SysUserBase):
     password: str
-    role_ids: Optional[list[int]] = None
+    role_ids: list[int] | None = None
 
 
 class SysUserUpdate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    is_active: Optional[bool] = None
-    is_superuser: Optional[bool] = None
-    remark: Optional[str] = None
-    role_ids: Optional[list[int]] = None
-    password: Optional[str] = None
+    username: str | None = None
+    email: EmailStr | None = None
+    is_active: bool | None = None
+    is_superuser: bool | None = None
+    remark: str | None = None
+    role_ids: list[int] | None = None
+    password: str | None = None
 
 
 class SysUserResponse(SysUserBase):
     id: int
-    last_login_at: Optional[datetime] = None
+    last_login_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
-    role_ids: Optional[list[int]] = None
+    role_ids: list[int] | None = None
 
     class Config:
         from_attributes = True
@@ -42,6 +42,3 @@ class SysUserResponse(SysUserBase):
 class UserLogin(BaseModel):
     username: str
     password: str
-
-
-

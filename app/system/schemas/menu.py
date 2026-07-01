@@ -1,6 +1,6 @@
-from pydantic import BaseModel
-from typing import Optional, List
 from datetime import datetime
+
+from pydantic import BaseModel
 
 from app.core.base_schema import BaseSchema
 
@@ -8,11 +8,11 @@ from app.core.base_schema import BaseSchema
 class MenuBase(BaseSchema):
     title: str
     name: str
-    path: Optional[str] = None
-    component: Optional[str] = None
-    icon: Optional[str] = None
+    path: str | None = None
+    component: str | None = None
+    icon: str | None = None
     sort: int = 0
-    parent_id: Optional[int] = None
+    parent_id: int | None = None
     menu_type: int = 1
     is_visible: bool = True
     is_keep_alive: bool = True
@@ -24,24 +24,24 @@ class MenuCreate(MenuBase):
 
 
 class MenuUpdate(BaseModel):
-    title: Optional[str] = None
-    name: Optional[str] = None
-    path: Optional[str] = None
-    component: Optional[str] = None
-    icon: Optional[str] = None
-    sort: Optional[int] = None
-    parent_id: Optional[int] = None
-    menu_type: Optional[int] = None
-    is_visible: Optional[bool] = None
-    is_keep_alive: Optional[bool] = None
-    status: Optional[int] = None
+    title: str | None = None
+    name: str | None = None
+    path: str | None = None
+    component: str | None = None
+    icon: str | None = None
+    sort: int | None = None
+    parent_id: int | None = None
+    menu_type: int | None = None
+    is_visible: bool | None = None
+    is_keep_alive: bool | None = None
+    status: int | None = None
 
 
 class MenuResponse(MenuBase):
     id: int
     created_at: datetime
     updated_at: datetime
-    children: Optional[List["MenuResponse"]] = None
+    children: list["MenuResponse"] | None = None
 
     class Config:
         from_attributes = True

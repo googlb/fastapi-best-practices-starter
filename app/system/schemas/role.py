@@ -1,12 +1,12 @@
-from pydantic import BaseModel
-from typing import Optional, List
 from datetime import datetime
+
+from pydantic import BaseModel
 
 
 class RoleBase(BaseModel):
     name: str
     code: str
-    description: Optional[str] = None
+    description: str | None = None
     status: int = 1
 
 
@@ -15,17 +15,17 @@ class RoleCreate(RoleBase):
 
 
 class RoleUpdate(BaseModel):
-    name: Optional[str] = None
-    code: Optional[str] = None
-    description: Optional[str] = None
-    status: Optional[int] = None
+    name: str | None = None
+    code: str | None = None
+    description: str | None = None
+    status: int | None = None
 
 
 class RoleResponse(RoleBase):
     id: int
     created_at: datetime
     updated_at: datetime
-    menu_ids: Optional[List[int]] = None
-    
+    menu_ids: list[int] | None = None
+
     class Config:
         from_attributes = True
