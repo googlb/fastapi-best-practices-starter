@@ -1,26 +1,29 @@
+
 from fastapi import Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import List
 
-from app.dependencies.database import get_session
 from app.dependencies.auth import get_current_user
+from app.dependencies.database import get_session
 from app.system.models import SysUser
 from app.system.services.permission_service import permission_service
+
 # 假设你有一个 Redis 客户端封装
 # from app.core.cache import redis_client
+
 
 class Perms:
     """
     权限依赖注入类
     用法: dependencies=[Depends(Perms("system:user:add"))]
     """
+
     def __init__(self, permission: str):
         self.permission = permission
 
     async def __call__(
         self,
         user: SysUser = Depends(get_current_user),
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_session),
     ):
         """
         FastAPI 会自动调用这个方法进行验证
@@ -47,7 +50,7 @@ class Perms:
         if self.permission not in user_perms:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"权限不足，需要权限: {self.permission}"
+                detail=f"权限不足，需要权限: {self.permission}",
             )
 
         return True

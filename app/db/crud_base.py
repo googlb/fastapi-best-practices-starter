@@ -1,12 +1,15 @@
-from typing import Any, Generic, TypeVar, Sequence
+from collections.abc import Sequence
+from typing import Any, Generic, TypeVar
+
 from pydantic import BaseModel
-from sqlmodel import SQLModel, select, func, col
-from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.sql.base import ExecutableOption
+from sqlmodel import SQLModel, col, func, select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 ModelType = TypeVar("ModelType", bound=SQLModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: type[ModelType]):
@@ -34,7 +37,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         # 允许传入 eager loading 选项，如 selectinload
         options: Sequence[ExecutableOption] | None = None,
         # 简单的相等过滤依然可以通过 kwargs 传入
-        **kwargs: Any
+        **kwargs: Any,
     ) -> tuple[list[ModelType], int]:
         """
         分页查询，支持复杂过滤、排序和选项
@@ -70,7 +73,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 statement = statement.order_by(order)
         elif hasattr(self.model, "created_at"):
             # 默认回退策略
-            statement = statement.order_by(col(getattr(self.model, "created_at")).desc())
+            statement = statement.order_by(
+                col(self.model.created_at).desc()
+            )
 
         # 6. 分页切片
         offset = (page - 1) * page_size
@@ -98,7 +103,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         *,
         db_obj: ModelType,
-        obj_in: UpdateSchemaType | dict[str, Any]
+        obj_in: UpdateSchemaType | dict[str, Any],
     ) -> ModelType:
         """
         更新对象

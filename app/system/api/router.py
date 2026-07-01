@@ -1,5 +1,7 @@
 from fastapi import APIRouter
-from app.system.api import user, role, menu, dict as dict_api, role_menu
+
+from app.system.api import dict as dict_api
+from app.system.api import menu, role, role_menu, user
 
 api_router = APIRouter()
 
