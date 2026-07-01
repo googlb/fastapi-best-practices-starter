@@ -1,20 +1,25 @@
-from typing import Optional, List, Any
-from sqlmodel import select, col
+from typing import Any
+
+from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.system.models import SysUser, SysUserRole
-from app.system.schemas.user import SysUserCreate, SysUserUpdate
 from app.core.security import hash_password, verify_password
 from app.db.crud_base import CRUDBase
+from app.system.models import SysUser, SysUserRole
+from app.system.schemas.user import SysUserCreate, SysUserUpdate
+
 
 class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
-
-    async def get_by_username(self, session: AsyncSession, username: str) -> Optional[SysUser]:
+    async def get_by_username(
+        self, session: AsyncSession, username: str
+    ) -> SysUser | None:
         statement = select(SysUser).where(SysUser.username == username)
         result = await session.exec(statement)
         return result.first()
 
-    async def get_by_email(self, session: AsyncSession, email: str) -> Optional[SysUser]:
+    async def get_by_email(
+        self, session: AsyncSession, email: str
+    ) -> SysUser | None:
         statement = select(SysUser).where(SysUser.email == email)
         result = await session.exec(statement)
         return result.first()
@@ -43,7 +48,7 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
         session: AsyncSession,
         *,
         db_obj: SysUser,
-        obj_in: SysUserUpdate | dict[str, Any]
+        obj_in: SysUserUpdate | dict[str, Any],
     ) -> SysUser:
         if isinstance(obj_in, dict):
             update_data = obj_in
@@ -57,7 +62,9 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
 
         return await super().update(session, db_obj=db_obj, obj_in=update_data)
 
-    async def get_by_role_ids(self, session: AsyncSession, role_ids: List[int]) -> List[SysUser]:
+    async def get_by_role_ids(
+        self, session: AsyncSession, role_ids: list[int]
+    ) -> list[SysUser]:
         """
         根据角色ID列表获取用户
         修复了之前的逻辑错误，使用 join 查询中间表
@@ -73,7 +80,7 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
 
     async def authenticate(
         self, session: AsyncSession, username: str, password: str
-    ) -> Optional[SysUser]:
+    ) -> SysUser | None:
         user = await self.get_by_username(session, username)
         if not user:
             return None
@@ -82,6 +89,7 @@ class CRUDSysUser(CRUDBase[SysUser, SysUserCreate, SysUserUpdate]):
             return None
 
         return user
+
 
 # 实例化
 crud_user = CRUDSysUser(SysUser)

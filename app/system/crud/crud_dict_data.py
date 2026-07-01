@@ -1,40 +1,53 @@
-from typing import Optional, List, Tuple, Any
-from sqlmodel import select, func, col
+from typing import Any
+
+from sqlmodel import col, func, select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.db.crud_base import CRUDBase
 from app.system.models import SysDictData
 from app.system.schemas.dict import DictDataCreate, DictDataUpdate
-from app.db.crud_base import CRUDBase
 
 
 class CRUDDictData(CRUDBase[SysDictData, DictDataCreate, DictDataUpdate]):
-    async def get_by_dict_id(self, session: AsyncSession, dict_id: int, skip: int = 0, limit: int = 100) -> List[SysDictData]:
+    async def get_by_dict_id(
+        self, session: AsyncSession, dict_id: int, skip: int = 0, limit: int = 100
+    ) -> list[SysDictData]:
         """根据字典ID获取字典数据列表"""
-        statement = select(SysDictData).where(SysDictData.dict_id == dict_id).offset(skip).limit(limit)
+        statement = (
+            select(SysDictData)
+            .where(SysDictData.dict_id == dict_id)
+            .offset(skip)
+            .limit(limit)
+        )
         result = await session.exec(statement)
         return list(result.all())
-    
+
     async def count_by_dict_id(self, session: AsyncSession, dict_id: int) -> int:
         """根据字典ID获取字典数据总数"""
-        statement = select(func.count()).select_from(SysDictData).where(SysDictData.dict_id == dict_id)
+        statement = (
+            select(func.count())
+            .select_from(SysDictData)
+            .where(SysDictData.dict_id == dict_id)
+        )
         result = await session.exec(statement)
         return result.one()
-    
+
     async def get_page(
         self,
         session: AsyncSession,
         *,
         page: int = 1,
         page_size: int = 10,
-        dict_id: Optional[int] = None,
-        **kwargs: Any
-    ) -> Tuple[List[SysDictData], int]:
+        dict_id: int | None = None,
+        **kwargs: Any,
+    ) -> tuple[list[SysDictData], int]:
         """
         获取分页列表 (包含总数)
         :return: (items, total_count)
         """
         # 1. 构建基础查询
         statement = select(self.model)
-        
+
         # 添加字典ID过滤条件
         if dict_id is not None:
             statement = statement.where(self.model.dict_id == dict_id)
@@ -57,8 +70,10 @@ class CRUDDictData(CRUDBase[SysDictData, DictDataCreate, DictDataUpdate]):
 
         # 可选：默认按创建时间倒序 (如果表里有 created_at)
         if hasattr(self.model, "created_at"):
-             # type: ignore
-            statement = statement.order_by(col(getattr(self.model, "created_at")).desc())
+            # type: ignore
+            statement = statement.order_by(
+                col(self.model.created_at).desc()
+            )
 
         result = await session.exec(statement)
         return list(result.all()), total

@@ -1,42 +1,39 @@
-from sqlmodel import select, delete
-from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import List, Optional
 
-from app.system.models import SysRole, SysMenu, SysRoleMenu
+from sqlmodel import delete, select
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.system.models import SysMenu, SysRole, SysRoleMenu
 
 
 class CRUDRoleMenu:
-    async def get_role_menus(self, session: AsyncSession, role_id: int) -> List[SysMenu]:
+    async def get_role_menus(
+        self, session: AsyncSession, role_id: int
+    ) -> list[SysMenu]:
         """获取角色拥有的菜单列表"""
         statement = (
-            select(SysMenu)
-            .join(SysRoleMenu)
-            .where(SysRoleMenu.role_id == role_id)
+            select(SysMenu).join(SysRoleMenu).where(SysRoleMenu.role_id == role_id)
         )
         result = await session.exec(statement)
         return list(result.all())
 
-    async def get_role_menu_ids(self, session: AsyncSession, role_id: int) -> List[int]:
+    async def get_role_menu_ids(self, session: AsyncSession, role_id: int) -> list[int]:
         """获取角色拥有的菜单ID列表"""
         statement = select(SysRoleMenu.menu_id).where(SysRoleMenu.role_id == role_id)
         result = await session.exec(statement)
         return list(result.all())
 
-    async def get_menu_roles(self, session: AsyncSession, menu_id: int) -> List[SysRole]:
+    async def get_menu_roles(
+        self, session: AsyncSession, menu_id: int
+    ) -> list[SysRole]:
         """获取菜单所属的角色列表"""
         statement = (
-            select(SysRole)
-            .join(SysRoleMenu)
-            .where(SysRoleMenu.menu_id == menu_id)
+            select(SysRole).join(SysRoleMenu).where(SysRoleMenu.menu_id == menu_id)
         )
         result = await session.exec(statement)
         return list(result.all())
 
     async def assign_menu_to_role(
-            self,
-            session: AsyncSession,
-            role_id: int,
-            menu_ids: List[int]
+        self, session: AsyncSession, role_id: int, menu_ids: list[int]
     ) -> bool:
         """为角色分配菜单"""
         try:
@@ -56,17 +53,13 @@ class CRUDRoleMenu:
             return False
 
     async def add_menu_to_role(
-            self,
-            session: AsyncSession,
-            role_id: int,
-            menu_id: int
+        self, session: AsyncSession, role_id: int, menu_id: int
     ) -> bool:
         """为角色添加单个菜单"""
         try:
             # 检查是否已存在关联
             statement = select(SysRoleMenu).where(
-                SysRoleMenu.role_id == role_id,
-                SysRoleMenu.menu_id == menu_id
+                SysRoleMenu.role_id == role_id, SysRoleMenu.menu_id == menu_id
             )
             result = await session.exec(statement)
             existing = result.one_or_none()
@@ -84,16 +77,12 @@ class CRUDRoleMenu:
             return False
 
     async def delete_menu_from_role(
-            self,
-            session: AsyncSession,
-            role_id: int,
-            menu_id: int
+        self, session: AsyncSession, role_id: int, menu_id: int
     ) -> bool:
         """从角色中移除菜单"""
         try:
             statement = delete(SysRoleMenu).where(
-                SysRoleMenu.role_id == role_id,
-                SysRoleMenu.menu_id == menu_id
+                SysRoleMenu.role_id == role_id, SysRoleMenu.menu_id == menu_id
             )
             await session.exec(statement)
             await session.commit()
@@ -103,15 +92,11 @@ class CRUDRoleMenu:
             return False
 
     async def check_role_has_menu(
-            self,
-            session: AsyncSession,
-            role_id: int,
-            menu_id: int
+        self, session: AsyncSession, role_id: int, menu_id: int
     ) -> bool:
         """检查角色是否拥有指定菜单"""
         statement = select(SysRoleMenu).where(
-            SysRoleMenu.role_id == role_id,
-            SysRoleMenu.menu_id == menu_id
+            SysRoleMenu.role_id == role_id, SysRoleMenu.menu_id == menu_id
         )
         result = await session.exec(statement)
         return result.one_or_none() is not None

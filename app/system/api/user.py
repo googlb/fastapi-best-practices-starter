@@ -1,28 +1,24 @@
 from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.dependencies.database import get_session
-from app.dependencies.auth import get_current_user
-from app.dependencies.pagination import PageDep
-from app.dependencies.permission import Perms
-from app.system.schemas.user import (
-    SysUserCreate,
-    SysUserUpdate,
-    SysUserResponse
-)
-from app.system.crud.crud_user import crud_user
-from app.system.services.user_service import sys_user_service
-from app.system.models import SysUser
-from app.core.resp import Result, PageInfo
 from app.core.exceptions import (
     NotFoundException,
     PermissionException,
 )
+from app.core.resp import PageInfo, Result
+from app.dependencies.auth import get_current_user
+from app.dependencies.database import get_session
+from app.dependencies.pagination import PageDep
+from app.dependencies.permission import Perms
+from app.system.crud.crud_user import crud_user
+from app.system.models import SysUser
+from app.system.schemas.user import SysUserCreate, SysUserResponse, SysUserUpdate
+from app.system.services.user_service import sys_user_service
 
 router = APIRouter()
 
 
-@router.get("/me", summary="获取当前用户信息",response_model=Result[SysUserResponse])
+@router.get("/me", summary="获取当前用户信息", response_model=Result[SysUserResponse])
 async def get_current_user_info(
     current_user: SysUser = Depends(get_current_user),
 ) -> Result[SysUserResponse]:
@@ -38,7 +34,7 @@ async def get_current_user_info(
     "",
     summary="获取用户列表",
     response_model=Result[PageInfo[SysUserResponse]],
-    dependencies=[Depends(Perms("system:user:list"))]
+    dependencies=[Depends(Perms("system:user:list"))],
 )
 async def get_user_list(
     *,
@@ -49,7 +45,7 @@ async def get_user_list(
     """
     分页获取用户列表
     需要权限: system:user:list
-    
+
     业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
     page_info = await sys_user_service.get_user_page(
@@ -65,7 +61,7 @@ async def get_user_list(
     "",
     summary="创建用户",
     response_model=Result[SysUserResponse],
-    dependencies=[Depends(Perms("system:user:add"))]
+    dependencies=[Depends(Perms("system:user:add"))],
 )
 async def create_user(
     *,
@@ -75,7 +71,7 @@ async def create_user(
     """
     创建新用户
     需要权限: system:user:add
-    
+
     业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
     user = await sys_user_service.create_user(session, user_in)
@@ -87,7 +83,7 @@ async def create_user(
     "/{user_id}",
     summary="更新用户",
     response_model=Result[SysUserResponse],
-    dependencies=[Depends(Perms("system:user:update"))]
+    dependencies=[Depends(Perms("system:user:update"))],
 )
 async def update_user(
     *,
@@ -98,7 +94,7 @@ async def update_user(
     """
     更新用户信息
     需要权限: system:user:update
-    
+
     业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
     # 1. 查出目标用户
@@ -126,7 +122,7 @@ async def update_user(
     "/{user_id}",
     summary="获取用户详情",
     response_model=Result[SysUserResponse],
-    dependencies=[Depends(Perms("system:user:query"))]
+    dependencies=[Depends(Perms("system:user:query"))],
 )
 async def get_user(
     *,
@@ -136,7 +132,7 @@ async def get_user(
     """
     根据ID获取用户详情
     需要权限: system:user:query
-    
+
     业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
     user = await crud_user.get(session, user_id)
@@ -151,18 +147,18 @@ async def get_user(
     "/{user_id}",
     summary="删除用户",
     response_model=Result,
-    dependencies=[Depends(Perms("system:user:delete"))]
+    dependencies=[Depends(Perms("system:user:delete"))],
 )
 async def delete_user(
     *,
     session: AsyncSession = Depends(get_session),
     user_id: int,
-    current_user: SysUser = Depends(get_current_user)
+    current_user: SysUser = Depends(get_current_user),
 ) -> Result[str]:
     """
     删除用户
     需要权限: system:user:delete
-    
+
     业务异常会被全局异常处理器自动捕获并转换为统一的 Result 格式。
     """
     # 1. 查出目标用户

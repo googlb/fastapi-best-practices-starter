@@ -1,13 +1,14 @@
-from typing import Optional
+
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.db.crud_base import CRUDBase
 from app.system.models import SysDict
 from app.system.schemas.dict import DictCreate, DictUpdate
-from app.db.crud_base import CRUDBase
 
 
 class CRUDDict(CRUDBase[SysDict, DictCreate, DictUpdate]):
-    async def get_by_code(self, session: AsyncSession, code: str) -> Optional[SysDict]:
+    async def get_by_code(self, session: AsyncSession, code: str) -> SysDict | None:
         """根据字典编码获取字典"""
         statement = select(SysDict).where(SysDict.code == code)
         result = await session.exec(statement)
